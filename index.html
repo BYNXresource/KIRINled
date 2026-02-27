@@ -18,10 +18,12 @@
             --text-main: #f4f4f5;
             --text-muted: #a1a1aa;
             
-            /* 星云渐变色 */
+            /* 渐变色 */
             --accent-cyan: #22d3ee;
             --accent-violet: #818cf8;
             --accent-pink: #f472b6;
+            --alert-orange: #f59e0b;
+            --alert-yellow: #eab308;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -73,13 +75,10 @@
             z-index: 100;
             border-bottom: 1px solid var(--border-subtle);
         }
-        .logo-text {
-            font-weight: 800;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            background: linear-gradient(to right, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .logo { 
+            height: 36px; 
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
         }
         .nav-links a {
             color: var(--text-muted);
@@ -93,13 +92,13 @@
 
         /* --- 主视觉区域 (Hero) --- */
         .hero {
-            min-height: 85vh;
+            min-height: 80vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 0 20px;
+            padding: 40px 20px;
             position: relative;
         }
 
@@ -181,9 +180,63 @@
             border-color: var(--border-hover);
         }
 
+        /* --- 警告提示区 (Notices) --- */
+        .notices-section {
+            max-width: 900px;
+            margin: -20px auto 80px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .alert-card {
+            background: rgba(15, 15, 17, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border-subtle);
+            border-left: 4px solid;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+        .alert-card:hover { transform: translateX(4px); }
+        
+        .alert-card.critical { 
+            border-left-color: var(--alert-orange);
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+        }
+        .alert-card.warning { 
+            border-left-color: var(--alert-yellow);
+            background: linear-gradient(90deg, rgba(234, 179, 8, 0.05) 0%, transparent 100%);
+        }
+
+        .alert-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+        .critical .alert-title { color: var(--alert-orange); }
+        .warning .alert-title { color: var(--alert-yellow); }
+
+        .alert-content p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .alert-content p:last-child { margin-bottom: 0; }
+        .alert-content strong { color: var(--text-main); font-weight: 500; }
+
         /* --- 交互式 LED 演示区 --- */
         .demo-section {
-            padding: 100px 5%;
+            padding: 60px 5%;
             position: relative;
             z-index: 10;
             text-align: center;
@@ -196,7 +249,6 @@
         }
         .section-subtitle { color: var(--text-muted); margin-bottom: 50px; font-size: 0.95rem; }
 
-        /* 重新设计的硬件外壳质感灯带 */
         .led-strip-container {
             width: 100%;
             max-width: 800px;
@@ -212,22 +264,18 @@
             padding: 0 15px;
             position: relative;
         }
-        
-        /* 增加两端的电路板螺丝孔细节 */
         .led-strip-container::before, .led-strip-container::after {
             content: ''; width: 8px; height: 8px; background: #09090b;
             border-radius: 50%; border: 1px solid #3f3f46;
         }
 
-        /* 更逼真的发光点 */
         .led {
             width: 16px; height: 16px;
-            background-color: #27272a; /* 灭灯状态 */
+            background-color: #27272a;
             border-radius: 50%;
             position: relative;
             transition: all 0.15s ease-out;
         }
-        /* 模拟LED核心白光 */
         .led::after {
             content: ''; position: absolute; top: 30%; left: 30%;
             width: 40%; height: 40%; background: rgba(255,255,255,0.8);
@@ -235,7 +283,6 @@
         }
         .led.active::after { opacity: 1; }
 
-        /* 控制台按钮 */
         .control-panel {
             display: flex;
             justify-content: center;
@@ -294,7 +341,6 @@
             position: relative;
             overflow: hidden;
         }
-        /* 卡片内发光效果 */
         .card::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at top left, rgba(255,255,255,0.05), transparent 70%);
@@ -326,7 +372,7 @@
             border-radius: 99px;
         }
 
-        /* --- 现代IDE代码展示区 --- */
+        /* --- 代码展示区 --- */
         .code-showcase {
             max-width: 800px;
             margin: 100px auto;
@@ -357,11 +403,10 @@
             font-size: 0.9rem;
             line-height: 1.7;
         }
-        /* Vercel/VS Code 风格高亮 */
-        .k-keyword { color: #c678dd; } /* 紫色 */
-        .k-function { color: #61afef; } /* 蓝色 */
-        .k-type { color: #e5c07b; } /* 黄色 */
-        .k-string { color: #98c379; } /* 绿色 */
+        .k-keyword { color: #c678dd; } 
+        .k-function { color: #61afef; } 
+        .k-type { color: #e5c07b; } 
+        .k-string { color: #98c379; } 
         .k-comment { color: #5c6370; font-style: italic; }
 
         footer {
@@ -374,7 +419,6 @@
         }
         footer strong { color: #fff; font-weight: 600; }
 
-        /* 响应式调整 */
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .led-strip-container { height: 44px; }
@@ -395,7 +439,8 @@
 
     <!-- 导航栏 -->
     <nav>
-        <div class="logo-text">KIRIN / BYNX</div>
+        <!-- 恢复 BYNX Logo -->
+        <img src="96507b78b3b3e62f9de351ea397a7a51.png" alt="BYNX" class="logo">
         <div class="nav-links">
             <a href="#features">Features</a>
             <a href="#demo">Simulation</a>
@@ -424,6 +469,33 @@
         </div>
     </section>
 
+    <!-- 警告提示区 -->
+    <section class="notices-section">
+        <!-- I2C 带宽严重警告 -->
+        <div class="alert-card critical">
+            <div class="alert-title">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Bandwidth & Performance Warning / 性能与带宽警告
+            </div>
+            <div class="alert-content">
+                <p><strong>EN:</strong> Due to the limited I2C bandwidth of the Control Hub, sending commands to KIRIN may temporarily cause other I2C devices on the same hub to become unresponsive, delaying sensor data retrieval. Please <strong>do not adjust lights frequently within active loops</strong>. In TeleOp, this may lead to input lag or loss of control; in Autonomous, it could result in odometry drift and pathing deviations.</p>
+                <p><strong>ZH:</strong> 由于 Control Hub 的 I2C 带宽有限，向 KIRIN 发送指令期间可能会导致同一个 Hub 上的其他 I2C 设备短暂无响应，致使无法及时传回传感器数据。<strong>请不要在主循环中频繁地调整灯光</strong>。在手动程序中这可能导致操作迟钝或失控，在自动阶段可能导致坐标系偏移或车体脱离路径。</p>
+            </div>
+        </div>
+
+        <!-- 比赛规则警告 -->
+        <div class="alert-card warning">
+            <div class="alert-title">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Compliance Notice / 比赛合规提示
+            </div>
+            <div class="alert-content">
+                <p><strong>EN:</strong> The FTC Game Manual contains strict regulations regarding optical effects and brightness. Please carefully check if your light patterns comply with the current season's rules before matches to avoid unnecessary penalties or fouls.</p>
+                <p><strong>ZH:</strong> FTC 赛季手册对机器人的光效有明确的规定。请在比赛上场前仔细检查您的灯光模式（如闪烁频率、亮度等）是否违规，以避免在场上造成不必要的犯规。</p>
+            </div>
+        </div>
+    </section>
+
     <!-- 交互式模拟区 -->
     <section id="demo" class="demo-section">
         <h2 class="section-title">Live Hardware Simulation</h2>
@@ -438,7 +510,7 @@
         <div class="control-panel">
             <button class="ctrl-btn" onclick="setMode('solid-red')">pad1.A [Solid Red]</button>
             <button class="ctrl-btn" onclick="setMode('solid-cyan')">pad1.B [Solid Cyan]</button>
-            <button class="ctrl-btn" onclick="setMode('wave')">pad1.X [Wave Mode]</button>
+            <button class="ctrl-btn" onclick="setMode('wave')">pad1.X[Wave Mode]</button>
             <button class="ctrl-btn" onclick="setMode('strobe')">pad1.Y [Strobe Mode]</button>
             <button class="ctrl-btn" onclick="setMode('single')">dpad_up[Single LED]</button>
             <button class="ctrl-btn" onclick="setMode('off')">dpad_down [Turn OFF]</button>
@@ -509,7 +581,6 @@
         const ledCount = 16;
         let animationInterval = null;
 
-        // 生成LED灯珠
         for(let i=0; i<ledCount; i++) {
             let led = document.createElement('div');
             led.className = 'led';
@@ -526,7 +597,6 @@
             });
         }
 
-        // 高级发光效果封装
         function setLedColor(el, color, blur = 15) {
             el.style.backgroundColor = color;
             el.style.boxShadow = `0 0 ${blur}px ${color}, 0 0 ${blur * 2}px ${color}`;
@@ -555,7 +625,6 @@
                     offset++;
                     document.querySelectorAll('.led').forEach((l, index) => {
                         let val = Math.sin((index + offset) * 0.4) * 0.5 + 0.5; 
-                        // Violet (129, 140, 248) to Cyan (34, 211, 238) interpolation
                         let r = Math.floor(129 + (34 - 129) * val);
                         let g = Math.floor(140 + (211 - 140) * val);
                         let b = Math.floor(248 + (238 - 248) * val);
@@ -583,7 +652,6 @@
         function triggerBuzzer() {
             const status = document.getElementById('status-text');
             status.innerText = "> Executing: playBeep(1000Hz, 150ms)";
-            // 外壳轻微震动模拟
             strip.style.transform = "scale(1.02)";
             setTimeout(() => strip.style.transform = "scale(0.98)", 50);
             setTimeout(() => strip.style.transform = "scale(1.01)", 100);
