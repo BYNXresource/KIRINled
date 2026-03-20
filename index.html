@@ -26,7 +26,10 @@
             --v3-green: #00ff66;
             --v3-glow: rgba(0, 255, 102, 0.15);
             
-            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            /* 极致丝滑缓动函数 (Apple-like) */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition-smooth: all 0.6s var(--ease-out-expo);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,132 +42,115 @@
             overflow-x: hidden;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            cursor: default;
         }
 
-        /* --- 物理质感层：噪点与动态网格 --- */
+        /* --- 1. 全局环境光追随 --- */
+        .cursor-glow {
+            position: fixed; top: 0; left: 0; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(0, 255, 102, 0.03) 0%, transparent 60%);
+            border-radius: 50%; pointer-events: none; z-index: -1;
+            transform: translate(-50%, -50%); transition: opacity 0.3s ease;
+            will-change: transform;
+        }
+
+        /* --- 2. 物理质感层 --- */
         .noise-bg {
-            position: fixed; inset: 0; z-index: 9999;
-            pointer-events: none; opacity: 0.03;
+            position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.03;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
         
         .grid-bg {
-            position: fixed; inset: 0; z-index: -2;
-            background-size: 40px 40px;
-            background-image: 
-                linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            position: fixed; inset: 0; z-index: -2; background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
             mask-image: radial-gradient(ellipse at center, black 0%, transparent 85%);
             -webkit-mask-image: radial-gradient(ellipse at top, black 20%, transparent 85%);
         }
 
-        /* --- 弥散光增强 --- */
-        .ambient-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
-        .blob {
-            position: absolute; filter: blur(140px); border-radius: 50%;
-            animation: float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0.35;
-        }
-        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-violet); }
-        .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--v3-green); animation-delay: -5s; }
+        .ambient-bg { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
+        .blob { position: absolute; filter: blur(140px); border-radius: 50%; opacity: 0.35; will-change: transform; }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-violet); animation: float 20s infinite alternate var(--ease-out-expo); }
+        .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--v3-green); animation: float 25s infinite alternate-reverse var(--ease-out-expo); animation-delay: -5s; }
 
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(8%, 12%) scale(1.1); }
-        }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(8%, 12%) scale(1.1); } }
 
         /* --- 导航栏 --- */
         nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 5%; background: rgba(0, 0, 0, 0.6);
+            padding: 20px 5%; background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            position: sticky; top: 0; z-index: 100;
-            border-bottom: 1px solid var(--border-subtle);
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.3s ease;
         }
+        nav:hover { background: rgba(0, 0, 0, 0.6); }
         .logo-text { font-weight: 800; font-size: 1.2rem; letter-spacing: 2px; }
-        .logo-text span { color: var(--v3-green); }
+        .logo-text span { color: var(--v3-green); text-shadow: 0 0 10px var(--v3-glow); }
         .nav-links a {
             color: var(--text-muted); text-decoration: none; margin-left: 40px;
-            font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px;
-            transition: var(--transition-smooth);
+            font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px; transition: var(--transition-smooth);
         }
-        .nav-links a:hover { color: #fff; }
+        .nav-links a:hover { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
-        /* --- 滚动揭示动画 --- */
-        .reveal { opacity: 0; transform: translateY(30px); transition: var(--transition-smooth); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-        .delay-1 { transition-delay: 0.1s; }
-        .delay-2 { transition-delay: 0.2s; }
+        /* --- 3. 基础页面元素进场动画 --- */
+        .reveal { 
+            opacity: 0; transform: translateY(40px) scale(0.98); filter: blur(12px); 
+            transition: opacity 1s var(--ease-out-expo), transform 1s var(--ease-out-expo), filter 1s var(--ease-out-expo);
+            will-change: opacity, transform, filter;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 
         /* --- 主视觉区域 --- */
-        .hero {
-            min-height: 80vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-            padding: 60px 20px;
-        }
+        .hero { min-height: 85vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 60px 20px; position: relative; z-index: 10; }
+        
         .version-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 6px 16px; background: rgba(0, 255, 102, 0.05);
-            border: 1px solid rgba(0, 255, 102, 0.2); border-radius: 99px;
-            font-size: 0.8rem; font-weight: 600; color: var(--v3-green);
-            margin-bottom: 24px; box-shadow: 0 0 20px var(--v3-glow);
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px;
+            background: rgba(0, 255, 102, 0.05); border: 1px solid rgba(0, 255, 102, 0.2);
+            border-radius: 99px; font-size: 0.8rem; font-weight: 600; color: var(--v3-green);
+            margin-bottom: 24px; box-shadow: 0 0 20px var(--v3-glow); backdrop-filter: blur(10px);
         }
-        .version-badge .dot {
-            width: 6px; height: 6px; background: var(--v3-green); border-radius: 50%;
-            box-shadow: 0 0 10px var(--v3-green); animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .version-badge .dot { width: 6px; height: 6px; background: var(--v3-green); border-radius: 50%; box-shadow: 0 0 10px var(--v3-green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
 
         h1 {
-            font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 800;
-            letter-spacing: -0.04em; line-height: 1.05;
-            background: linear-gradient(180deg, #ffffff 0%, #888 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 24px;
+            font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.05;
+            background: linear-gradient(180deg, #ffffff 0%, #71717a 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
         }
-        .subtitle {
-            font-size: 1.1rem; color: var(--text-muted); max-width: 650px;
-            margin-bottom: 40px; line-height: 1.7;
-        }
+        .subtitle { font-size: 1.15rem; color: var(--text-muted); max-width: 650px; margin-bottom: 40px; line-height: 1.7; }
         .subtitle span { color: #fff; font-weight: 500; }
 
         .cta-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+        
         .btn {
             padding: 14px 32px; border-radius: 99px; font-weight: 600; font-size: 0.95rem;
             text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
             cursor: pointer; border: none; transition: var(--transition-smooth);
+            position: relative; overflow: hidden;
         }
-        .btn-primary {
-            background: #fff; color: #000;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 10px 30px rgba(255,255,255,0.15);
+        .btn-primary { background: #fff; color: #000; box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 10px 30px rgba(255,255,255,0.15); }
+        .btn-primary::after {
+            content: ''; position: absolute; top: -50%; left: -150%; width: 50%; height: 200%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(30deg); transition: var(--transition-smooth);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 15px 40px rgba(255,255,255,0.3); }
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.03); color: #fff;
-            border: 1px solid var(--border-subtle); backdrop-filter: blur(10px);
-        }
-        .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--border-hover); transform: translateY(-2px); }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 20px 40px rgba(255,255,255,0.3); }
+        .btn-primary:hover::after { animation: shine 1.5s var(--ease-out-expo); }
+        @keyframes shine { 100% { left: 200%; } }
 
-        /* --- 警告横幅区 (I2C 阻塞警告) --- */
-        .notices-section {
-            max-width: 1000px; margin: 0 auto 80px auto; padding: 0 20px;
-            display: flex; flex-direction: column; gap: 20px; z-index: 10; position: relative;
-        }
+        .btn-secondary { background: rgba(255, 255, 255, 0.03); color: #fff; border: 1px solid var(--border-subtle); backdrop-filter: blur(10px); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--border-hover); transform: translateY(-3px) scale(1.02); }
 
+        /* --- 警告横幅区 --- */
+        .notices-section { max-width: 1000px; margin: 0 auto 80px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 20px; z-index: 10; position: relative; }
         .alert-card {
-            background: rgba(15, 15, 17, 0.6); backdrop-filter: blur(16px);
-            border-radius: 16px; padding: 24px; border: 1px solid var(--border-subtle);
-            border-left: 4px solid; display: flex; flex-direction: column; gap: 12px;
+            background: rgba(15, 15, 17, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px; padding: 24px; border: 1px solid var(--border-subtle); border-left: 4px solid;
+            display: flex; flex-direction: column; gap: 12px; transition: transform 0.4s var(--ease-elastic);
         }
-        .alert-card.critical { 
-            border-left-color: var(--alert-orange);
-            background: linear-gradient(90deg, rgba(255, 94, 0, 0.05) 0%, rgba(15,15,17,0.6) 100%);
-        }
-        .alert-card.warning { 
-            border-left-color: var(--alert-yellow);
-            background: linear-gradient(90deg, rgba(250, 204, 21, 0.05) 0%, rgba(15,15,17,0.6) 100%);
-        }
-
+        .alert-card:hover { transform: translateX(8px); }
+        .alert-card.critical { border-left-color: var(--alert-orange); background: linear-gradient(90deg, rgba(255, 94, 0, 0.05) 0%, rgba(15,15,17,0.4) 100%); }
+        .alert-card.warning { border-left-color: var(--alert-yellow); background: linear-gradient(90deg, rgba(250, 204, 21, 0.05) 0%, rgba(15,15,17,0.4) 100%); }
         .alert-title { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.05rem; }
         .critical .alert-title { color: var(--alert-orange); }
         .warning .alert-title { color: var(--alert-yellow); }
@@ -177,130 +163,137 @@
         .section-subtitle { color: var(--text-muted); margin-bottom: 50px; font-size: 1rem; }
 
         .led-strip-container {
-            width: 100%; max-width: 900px; height: 60px;
-            background: #09090b; 
+            width: 100%; max-width: 900px; height: 60px; background: #09090b; 
             background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .03) 25%, rgba(255, 255, 255, .03) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .03) 75%, rgba(255, 255, 255, .03) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .03) 25%, rgba(255, 255, 255, .03) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .03) 75%, rgba(255, 255, 255, .03) 76%, transparent 77%, transparent);
-            background-size: 20px 20px;
-            margin: 0 auto 40px auto; border-radius: 8px;
+            background-size: 20px 20px; margin: 0 auto 40px auto; border-radius: 8px;
             border: 2px solid #1f1f22; border-bottom-color: #333;
             box-shadow: inset 0 5px 20px rgba(0,0,0,0.9), 0 30px 60px rgba(0,0,0,0.6);
-            display: flex; align-items: center; justify-content: space-evenly;
-            padding: 0 15px; position: relative;
+            display: flex; align-items: center; justify-content: space-evenly; padding: 0 15px; position: relative;
+            transition: transform 0.3s var(--ease-elastic);
         }
 
         .led {
-            width: 16px; height: 16px; background-color: #111;
-            border-radius: 4px; border: 1px solid #222; position: relative;
+            width: 16px; height: 16px; background-color: #111; border-radius: 4px; border: 1px solid #222; position: relative;
+            will-change: background-color, box-shadow;
         }
         .led::after {
             content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 6px; height: 6px; background: rgba(255,255,255,0.05);
-            border-radius: 50%; transition: opacity 0.1s;
+            width: 6px; height: 6px; background: rgba(255,255,255,0.05); border-radius: 50%;
+            transition: opacity 0.1s linear, background-color 0.1s linear; will-change: opacity;
         }
         .led.active::after { background: #fff; box-shadow: 0 0 8px #fff; opacity: 1; }
 
-        /* 控制面板矩阵分组 */
-        .controls-matrix {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; text-align: left;
-            background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle);
-            padding: 30px; border-radius: 20px; backdrop-filter: blur(20px);
-        }
+        .controls-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; text-align: left; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); padding: 30px; border-radius: 20px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
         @media (max-width: 900px) { .controls-matrix { grid-template-columns: 1fr; } }
         
-        .control-group h4 {
-            color: #fff; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;
-            margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .control-group h4 span { font-size: 0.7rem; color: var(--v3-green); background: var(--v3-glow); padding: 2px 8px; border-radius: 99px; }
+        .control-group h4 { color: #fff; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+        .control-group h4 span { font-size: 0.7rem; color: var(--v3-green); background: var(--v3-glow); padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(0,255,102,0.2); }
         .btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
 
         .ctrl-btn {
-            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-subtle);
-            color: var(--text-muted); padding: 12px 16px; border-radius: 8px; cursor: pointer;
-            font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500;
-            transition: var(--transition-smooth); text-align: left;
-            display: flex; flex-direction: column; gap: 4px;
+            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-subtle); color: var(--text-muted);
+            padding: 12px 16px; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif;
+            font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); text-align: left;
+            display: flex; flex-direction: column; gap: 4px; transform: scale(1);
         }
-        .ctrl-btn span { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #555; }
-        .ctrl-btn:hover { border-color: rgba(255,255,255,0.2); color: #fff; background: rgba(255,255,255,0.05); }
-        .ctrl-btn.active-btn { border-color: var(--v3-green); background: var(--v3-glow); color: #fff; }
+        .ctrl-btn span { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #555; transition: color 0.3s; }
+        .ctrl-btn:hover { border-color: rgba(255,255,255,0.2); color: #fff; background: rgba(255,255,255,0.05); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .ctrl-btn:active { transform: scale(0.96); }
+        .ctrl-btn.active-btn { border-color: var(--v3-green); background: var(--v3-glow); color: #fff; box-shadow: 0 0 15px var(--v3-glow); }
         .ctrl-btn.active-btn span { color: var(--v3-green); }
 
-        #status-text {
-            margin-top: 30px; font-family: 'JetBrains Mono', monospace;
-            color: var(--v3-green); font-size: 0.95rem; text-shadow: 0 0 10px var(--v3-glow);
-            background: #000; display: inline-block; padding: 10px 24px; border-radius: 8px; border: 1px solid #222;
-        }
+        #status-text { margin-top: 30px; font-family: 'JetBrains Mono', monospace; color: var(--v3-green); font-size: 0.95rem; text-shadow: 0 0 10px var(--v3-glow); background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); display: inline-block; padding: 10px 24px; border-radius: 8px; border: 1px solid rgba(0,255,102,0.2); transition: all 0.3s; }
 
-        /* --- 全量特性卡片 Grid --- */
-        .features {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px; max-width: 1400px; margin: 0 auto; padding: 50px 5% 100px 5%;
-        }
+        /* --- 4. 真·3D 视差卡片 (新增瀑布流入场动画) --- */
+        .features { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; max-width: 1400px; margin: 0 auto; padding: 50px 5% 100px 5%; perspective: 1000px; }
 
         .card {
             background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid var(--border-subtle); padding: 36px 30px; border-radius: 20px;
-            backdrop-filter: blur(20px); transition: var(--transition-smooth); position: relative; overflow: hidden;
-            display: flex; flex-direction: column;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+            
+            /* 瀑布流入场初始状态 */
+            opacity: 0; transform: translateY(60px) scale(0.95); filter: blur(15px);
+            transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo), filter 0.8s var(--ease-out-expo), border-color 0.3s, box-shadow 0.3s;
+            will-change: transform, opacity, filter; transform-style: preserve-3d;
         }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); opacity: 0.1; }
-        .card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .card-icon { font-size: 1.8rem; background: rgba(255,255,255,0.05); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-subtle); }
+        /* 触发入场后的状态 */
+        .card.is-visible { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); opacity: 0.1; transition: opacity 0.3s; }
+        .card::after { content: ''; position: absolute; inset: 0; background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06), transparent 40%); opacity: 0; transition: opacity 0.5s; pointer-events: none; }
+        
+        /* 悬浮状态 */
+        .card:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 30px 60px rgba(0,0,0,0.6); z-index: 10; transition: border-color 0.3s, box-shadow 0.3s; /* 移除 transform 过渡让 JS 接管 3D */ }
+        .card:hover::before, .card:hover::after { opacity: 1; }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; transform: translateZ(20px); }
+        .card-icon { font-size: 1.8rem; background: rgba(255,255,255,0.05); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-subtle); box-shadow: inset 0 2px 10px rgba(255,255,255,0.02); }
         .code-tag { font-family: 'JetBrains Mono'; font-size: 0.75rem; font-weight: 600; background: rgba(255,255,255,0.05); color: #fff; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
         .tag-v3 { color: var(--v3-green); border-color: rgba(0,255,102,0.3); background: var(--v3-glow); }
 
-        .card h3 { font-size: 1.25rem; margin-bottom: 10px; color: #fff; font-weight: 700; letter-spacing: -0.5px; }
-        .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; }
-        .card-desc-zh { font-size: 0.85rem !important; color: #71717a !important; margin-bottom: 0 !important; border-top: 1px dashed var(--border-subtle); padding-top: 12px; margin-top: auto; }
+        .card h3 { font-size: 1.25rem; margin-bottom: 10px; color: #fff; font-weight: 700; letter-spacing: -0.5px; transform: translateZ(30px); }
+        .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; transform: translateZ(20px); }
+        .card-desc-zh { font-size: 0.85rem !important; color: #71717a !important; margin-bottom: 0 !important; border-top: 1px dashed var(--border-subtle); padding-top: 12px; margin-top: auto; transform: translateZ(10px); }
 
-        /* --- 弹窗样式 (Modal) --- */
+        /* --- 5. 弹窗果冻入场动画 (弹性 Modal) --- */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(16px);
-            z-index: 1000; display: none; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.3s ease;
+            position: fixed; inset: 0; z-index: 1000;
+            background: rgba(0, 0, 0, 0.75);
+            /* 关键修复：抛弃 display:none，使用 visibility + opacity 保证过渡生效 */
+            visibility: hidden; opacity: 0; pointer-events: none;
+            backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.4s ease, backdrop-filter 0.4s ease, visibility 0.4s;
         }
-        .modal-overlay.active { display: flex; opacity: 1; }
+        
+        .modal-overlay.active {
+            visibility: visible; opacity: 1; pointer-events: auto;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        }
+
         .modal-container {
             background: #09090b; width: 90%; max-width: 720px;
-            border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-            padding: 40px; position: relative; transform: scale(0.95) translateY(20px); 
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); padding: 40px; position: relative;
             box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
             max-height: 90vh; display: flex; flex-direction: column;
+            
+            /* 初始状态：下沉、缩小并带有 3D 翻转 */
+            opacity: 0; transform: scale(0.85) translateY(60px) rotateX(-10deg);
+            transition: transform 0.6s var(--ease-elastic), opacity 0.4s ease;
         }
-        .modal-overlay.active .modal-container { transform: scale(1) translateY(0); }
+
+        /* 激活状态：果冻回弹至中心 */
+        .modal-overlay.active .modal-container {
+            opacity: 1; transform: scale(1) translateY(0) rotateX(0deg);
+        }
+        
         .modal-header h2 { font-size: 1.8rem; margin-bottom: 8px; color: #fff; letter-spacing: -0.5px; }
         .modal-header p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
-        
-        .terms-box {
-            background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle);
-            border-radius: 16px; flex-grow: 1; overflow-y: auto; padding: 24px;
-            font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px;
-        }
+        .terms-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: 16px; flex-grow: 1; overflow-y: auto; padding: 24px; font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px; }
         .terms-box h4 { color: #fff; margin: 20px 0 8px 0; font-size: 1rem; }
         .terms-box h4:first-child { margin-top: 0; }
         .terms-box pre { background: rgba(0,0,0,0.5); padding: 16px; border-radius: 8px; white-space: pre-wrap; font-family: 'JetBrains Mono'; font-size: 0.8rem; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05); color: #888; }
-        .terms-box::-webkit-scrollbar { width: 6px; }
+        .terms-box::-webkit-scrollbar { width: 4px; }
         .terms-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        
         .agreement-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 0.95rem; color: #fff; margin-bottom: 30px; user-select: none; }
-        .agreement-label input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--v3-green); }
-        
+        .agreement-label input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--v3-green); cursor: pointer; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid var(--border-subtle); padding-top: 24px; }
         .dl-btn { background: #3f3f46; color: #a1a1aa; pointer-events: none; opacity: 0.5; text-decoration: none; padding: 12px 24px; border-radius: 99px; font-weight: 600; font-size: 0.9rem; transition: var(--transition-smooth); display: inline-flex; align-items: center; gap: 8px;}
         .dl-btn.ready.primary { background: #fff; color: #000; pointer-events: auto; opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .dl-btn.ready.secondary { background: rgba(255,255,255,0.1); color: #fff; pointer-events: auto; opacity: 1; border: 1px solid var(--border-subtle); }
+        .dl-btn.ready.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.3); }
+        .dl-btn.ready.secondary { background: rgba(255,255,255,0.1); color: #fff; pointer-events: auto; opacity: 1; border: 1px solid var(--border-subtle); backdrop-filter: blur(10px); }
+        .dl-btn.ready.secondary:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); border-color: rgba(255,255,255,0.3); }
 
-        footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-subtle); background: rgba(0,0,0,0.8); }
+        footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-subtle); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
         footer strong { color: #fff; }
     </style>
 </head>
 <body>
+
+    <div class="cursor-glow" id="cursorGlow"></div>
 
     <div class="noise-bg"></div>
     <div class="grid-bg"></div>
@@ -359,7 +352,7 @@
 
     <section id="demo" class="demo-section reveal">
         <h2 class="section-title">Full Capability Simulator</h2>
-        <p class="section-subtitle">Experience the exact math models running on the STM32 MCU.</p>
+        <p class="section-subtitle">Experience the exact math models running on the STM32 MCU. Smooth 60fps rendering.</p>
         
         <div class="led-strip-container" id="ledStrip"></div>
 
@@ -393,97 +386,68 @@
     </section>
 
     <section id="features" class="features">
-        
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🌊</div>
-                <span class="code-tag tag-v3">Mode 6: ENTW2</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🌊</div><span class="code-tag tag-v3">Mode 6: ENTW2</span></div>
             <h3>Sub-pixel Anti-Aliasing</h3>
             <p>Advanced engine smoothly blends up to 10 colors across physical LEDs to eliminate blocky hard edges.</p>
             <p class="card-desc-zh">次像素抗锯齿引擎，支持最高10色交替流水，通过亚像素插值计算消除物理灯珠间的割裂感。</p>
         </div>
 
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🫁</div>
-                <span class="code-tag tag-v3">Mode 5: ENTB</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🫁</div><span class="code-tag tag-v3">Mode 5: ENTB</span></div>
             <h3>Non-linear Math Breath</h3>
             <p>Employs natural mathematical easing curves (e.g., Sin²) for organic global or flowing breathing animations.</p>
             <p class="card-desc-zh">内置非线性数学曲线运算，摒弃生硬的线性渐变，还原最接近自然生理机能的呼吸灯效。</p>
         </div>
 
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🚀</div>
-                <span class="code-tag tag-v3">Mode 7A: ENTPB</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🚀</div><span class="code-tag tag-v3">Mode 7A: ENTPB</span></div>
             <h3>Smart Auto Progress Bar</h3>
             <p>Fire-and-forget physics animation. Send one command, and the MCU handles acceleration, holding, and erasing autonomously.</p>
             <p class="card-desc-zh">自动充能进度条：单指令触发极具爆发力的激光填满与自动衰退动画，全程零占用总线。</p>
         </div>
 
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🔋</div>
-                <span class="code-tag tag-v3">Mode 7B: ENTPB M</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🔋</div><span class="code-tag tag-v3">Mode 7B: ENTPB M</span></div>
             <h3>Manual Accumulation</h3>
             <p>Pass floating-point units to build a progress bar smoothly. Perfect for displaying intake telemetry or battery levels.</p>
             <p class="card-desc-zh">手动进度条累计：传入浮点数值（如搭载的Ring数量），灯环将以平滑动画累加亮起指定格数。</p>
         </div>
 
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🚥</div>
-                <span class="code-tag">Mode 2: ENTW</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🚥</div><span class="code-tag">Mode 2: ENTW</span></div>
             <h3>Dual-Color Classic Wave</h3>
             <p>The standard, highly efficient dual-color sine wave for general robotic state feedback.</p>
             <p class="card-desc-zh">基础版双色正弦波流水灯，性能开销极低，适用于传达常规的机器人状态反馈。</p>
         </div>
 
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🚨</div>
-                <span class="code-tag">Mode 3: ENTST</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🚨</div><span class="code-tag">Mode 3: ENTST</span></div>
             <h3>High-Frequency Strobe</h3>
             <p>Splits the strip and alternates colors at high frequencies for urgent visual alerts (e.g., Target Locked).</p>
             <p class="card-desc-zh">警灯爆闪模式，分组交替高频闪烁，极具视觉冲击力，适合用于“锁定目标”或“时间警告”。</p>
         </div>
 
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🎯</div>
-                <span class="code-tag">Mode 4: ENAT</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🎯</div><span class="code-tag">Mode 4: ENAT</span></div>
             <h3>Pixel-Perfect Control</h3>
             <p>Direct memory access to address any individual LED index with a specific HEX color and brightness.</p>
             <p class="card-desc-zh">像素级单点控制：直接寻址任意一颗物理灯珠并指定其颜色和亮度，适合自定义极客玩法。</p>
         </div>
 
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🔊</div>
-                <span class="code-tag">Audio: BENT</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🔊</div><span class="code-tag">Audio: BENT</span></div>
             <h3>Acoustic-Optic Sync</h3>
             <p>Trigger exact frequencies (Hz) and durations (ms) on the onboard buzzer concurrently with light effects.</p>
             <p class="card-desc-zh">声光同步引擎：向板载蜂鸣器发送精确的频率(Hz)和时长(ms)，实现媲美外设的物理震动反馈。</p>
         </div>
 
-        <div class="card reveal">
-            <div class="card-header">
-                <div class="card-icon">🆔</div>
-                <span class="code-tag">Boot: ASSIGN</span>
-            </div>
+        <div class="card">
+            <div class="card-header"><div class="card-icon">🆔</div><span class="code-tag">Boot: ASSIGN</span></div>
             <h3>Smart ID Standby</h3>
             <p>Flashes orange on boot to indicate ready state. Auto-sleeps the moment a logical ID is assigned via I2C.</p>
             <p class="card-desc-zh">智能上电分配：通电时橙光闪烁等待连接，一旦收到 I2C 的 ID 分配指令即刻进入黑屏待机状态。</p>
         </div>
-
     </section>
 
     <footer>
@@ -512,7 +476,7 @@
             
             <label class="agreement-label">
                 <input type="checkbox" id="agreeCheckbox">
-                <span>我已阅读并完全知晓 I2C 阻塞的严重风险，同意仅在状态切换时发送指令，并同意开源协议。</span>
+                <span>我已阅读并完全知晓 I2C 阻塞的严重风险，同意仅在状态切换时发送指令。</span>
             </label>
             
             <div class="modal-footer">
@@ -521,15 +485,21 @@
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Driver .java
                 </a>
-                <a id="dl-opmode" href="STM32LedShowcase.java" download class="dl-btn secondary">
-                    OpMode .java
-                </a>
+                <a id="dl-opmode" href="STM32LedShowcase.java" download class="dl-btn secondary">OpMode .java</a>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. 滚动揭示动画
+        // 1. 全局鼠标追踪环境光
+        const cursorGlow = document.getElementById('cursorGlow');
+        document.addEventListener('mousemove', (e) => {
+            requestAnimationFrame(() => {
+                cursorGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            });
+        });
+
+        // 2. 基础元素进场动画
         const revealElements = document.querySelectorAll('.reveal');
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -541,7 +511,7 @@
         }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
         revealElements.forEach(el => revealObserver.observe(el));
 
-        // 2. 弹窗与下载逻辑
+        // 3. 弹窗果冻动画控制 (弹性 Modal)
         const modal = document.getElementById('downloadModal');
         const checkbox = document.getElementById('agreeCheckbox');
         const dlDriver = document.getElementById('dl-driver');
@@ -551,18 +521,19 @@
             modal.classList.add('active'); 
             document.body.style.overflow = 'hidden'; 
         }
+        
         function closeDownloadModal() { 
             modal.classList.remove('active'); 
             document.body.style.overflow = 'auto'; 
+            // 延迟重置 Checkbox 防止关闭时视觉突变
+            setTimeout(() => { checkbox.checked = false; checkbox.dispatchEvent(new Event('change')); }, 400);
         }
         
         checkbox.addEventListener('change', function() {
             if(this.checked) {
-                dlDriver.classList.add('ready');
-                dlOpmode.classList.add('ready');
+                dlDriver.classList.add('ready'); dlOpmode.classList.add('ready');
             } else {
-                dlDriver.classList.remove('ready');
-                dlOpmode.classList.remove('ready');
+                dlDriver.classList.remove('ready'); dlOpmode.classList.remove('ready');
             }
         });
         
@@ -570,14 +541,63 @@
             if (e.target === modal) closeDownloadModal(); 
         });
 
-        // 3. 模拟器核心逻辑
+        // 4. 卡片区：阶梯式瀑布流进场动画 (Staggered Cascade) + 3D 视差
+        const cards = document.querySelectorAll('.features .card');
+        let cardStaggerTime = 0;
+        
+        const cardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('is-visible');
+                    }, cardStaggerTime);
+                    cardStaggerTime += 100; // 每张卡片递增 100ms 延迟
+                    cardObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -20px 0px" });
+        
+        cards.forEach(card => {
+            cardObserver.observe(card);
+            
+            // 绑定 3D 视差交互
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -6; 
+                const rotateY = ((x - centerX) / centerX) * 6;
+                
+                requestAnimationFrame(() => {
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+            });
+
+            card.addEventListener('mouseleave', () => {
+                requestAnimationFrame(() => {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                    card.style.transition = `transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)`;
+                });
+            });
+            
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = `none`; 
+            });
+        });
+
+        // 5. 高性能模拟器核心逻辑
         const strip = document.getElementById('ledStrip');
         const statusText = document.getElementById('status-text');
         const ledCount = 16;
         let animationFrameId = null;
         let manualUnits = 0;
 
-        // 生成DOM
         for(let i=0; i<ledCount; i++) {
             let led = document.createElement('div');
             led.className = 'led'; led.id = 'led-' + i;
@@ -602,7 +622,7 @@
             brightnessMultiplier > 0.1 ? el.classList.add('active') : el.classList.remove('active');
         }
 
-        // 核心控制器
+        // 核心渲染器
         function setMode(mode) {
             clearEffects();
             event.currentTarget.classList.add('active-btn');
@@ -614,40 +634,30 @@
                     statusText.innerText = "> Executing: turnOff() - Module in sleep mode.";
                     manualUnits = 0;
                     break;
-
                 case 'solid':
                     statusText.innerText = "> Mode 1: setSolidColor(0xFF0044) - Full Brightness";
                     leds.forEach(l => setLedColor(l, 255, 0, 68, 1));
                     break;
-
                 case 'pixel':
                     statusText.innerText = "> Mode 4: setIndividualLed() - Mapping specific indices";
-                    setLedColor(leds[0], 255, 0, 0, 1);   // LED 1: Red
-                    setLedColor(leds[7], 0, 255, 0, 1);   // LED 8: Green
-                    setLedColor(leds[15], 0, 0, 255, 1);  // LED 16: Blue
+                    setLedColor(leds[0], 255, 0, 0, 1); setLedColor(leds[7], 0, 255, 0, 1); setLedColor(leds[15], 0, 0, 255, 1);
                     break;
-
                 case 'wave-classic':
                     statusText.innerText = "> Mode 2: setWaveMode(Cyan, Magenta) - Simple Sine Blend";
                     function renderClassicWave() {
                         let t = (performance.now() - startTime) / 1000;
                         leds.forEach((l, i) => {
                             let mix = (Math.sin(i * 0.5 - t * 5) + 1) / 2;
-                            let r = 0 + (255 - 0) * mix;
-                            let g = 255 + (0 - 255) * mix;
-                            let b = 255 + (255 - 255) * mix;
-                            setLedColor(l, r, g, b, 1);
+                            setLedColor(l, 0 + (255 - 0) * mix, 255 + (0 - 255) * mix, 255, 1);
                         });
                         animationFrameId = requestAnimationFrame(renderClassicWave);
                     }
                     renderClassicWave();
                     break;
-
                 case 'strobe':
                     statusText.innerText = "> Mode 3: setStrobeMode(Red, Blue) - High Frequency Alt";
                     function renderStrobe() {
-                        let t = Math.floor((performance.now() - startTime) / 80); // 80ms toggle
-                        let toggle = t % 2 === 0;
+                        let toggle = Math.floor((performance.now() - startTime) / 80) % 2 === 0;
                         leds.forEach((l, i) => {
                             let isLeft = i < ledCount / 2;
                             if ((isLeft && toggle) || (!isLeft && !toggle)) setLedColor(l, 255, 0, 0, 1);
@@ -657,121 +667,87 @@
                     }
                     renderStrobe();
                     break;
-
                 case 'breath-global':
                     statusText.innerText = "> Mode 5: setBreathMode(true, Orange) - Global Sin² Easing";
                     function renderGlobalBreath() {
-                        let t = (performance.now() - startTime) / 1000;
-                        let val = Math.pow(Math.sin(t * 2), 2); // Non-linear
+                        let val = Math.pow(Math.sin((performance.now() - startTime) / 1000 * 2), 2);
                         leds.forEach(l => setLedColor(l, 255, 165, 0, val * 0.9 + 0.1));
                         animationFrameId = requestAnimationFrame(renderGlobalBreath);
                     }
                     renderGlobalBreath();
                     break;
-
                 case 'breath-flow':
                     statusText.innerText = "> Mode 5: setBreathMode(false, Purple, Cyan) - Phase Shift Math";
                     function renderFlowBreath() {
                         let t = (performance.now() - startTime) / 1000;
                         let val = Math.pow(Math.sin(t * 1.5), 2);
                         leds.forEach((l, i) => {
-                            let phase = (i / ledCount) * Math.PI + t * 2;
-                            let mix = (Math.sin(phase) + 1) / 2;
-                            let r = 128 + (0 - 128) * mix;
-                            let g = 0 + (255 - 0) * mix;
-                            let b = 128 + (255 - 128) * mix;
-                            setLedColor(l, r, g, b, val * 0.8 + 0.1);
+                            let mix = (Math.sin((i / ledCount) * Math.PI + t * 2) + 1) / 2;
+                            setLedColor(l, 128 - 128 * mix, 255 * mix, 128 + 127 * mix, val * 0.8 + 0.1);
                         });
                         animationFrameId = requestAnimationFrame(renderFlowBreath);
                     }
                     renderFlowBreath();
                     break;
-
                 case 'stripe-hard':
                     statusText.innerText = "> Mode 6: setAdvancedStripeWave(antiAlias=false) - Blocky Traffic Light";
                     function renderHardStripe() {
-                        let t = (performance.now() - startTime) / 1000;
-                        let offset = t * 5;
+                        let offset = ((performance.now() - startTime) / 1000) * 5;
                         leds.forEach((l, i) => {
                             let pos = (i - offset) % 15; if(pos < 0) pos += 15;
-                            if(pos < 5) setLedColor(l, 255, 0, 0, 1);
-                            else if(pos < 10) setLedColor(l, 255, 255, 0, 1);
-                            else setLedColor(l, 0, 255, 0, 1);
+                            if(pos < 5) setLedColor(l, 255, 0, 0, 1); else if(pos < 10) setLedColor(l, 255, 255, 0, 1); else setLedColor(l, 0, 255, 0, 1);
                         });
                         animationFrameId = requestAnimationFrame(renderHardStripe);
                     }
                     renderHardStripe();
                     break;
-
                 case 'stripe-aa':
                     statusText.innerText = "> Mode 6: setAdvancedStripeWave(antiAlias=true, A=1.5) - Sub-pixel Blending";
                     function renderAAStripe() {
-                        let t = (performance.now() - startTime) / 1000;
-                        let offset = t * 5;
+                        let offset = ((performance.now() - startTime) / 1000) * 5;
                         leds.forEach((l, i) => {
                             let pos = (i - offset) % 15; if(pos < 0) pos += 15;
                             let r=0, g=0, b=0, br=0;
                             if(pos < 5) { r = 255; br = Math.sin((pos/5)*Math.PI); }
                             else if(pos < 10) { r = 255; g = 255; br = Math.sin(((pos-5)/5)*Math.PI); }
                             else { g = 255; br = Math.sin(((pos-10)/5)*Math.PI); }
-                            br = Math.pow(br, 1.5); // AA Easing curve
-                            setLedColor(l, r, g, b, br);
+                            setLedColor(l, r, g, b, Math.pow(br, 1.5));
                         });
                         animationFrameId = requestAnimationFrame(renderAAStripe);
                     }
                     renderAAStripe();
                     break;
-
                 case 'pb-auto':
                     statusText.innerText = "> Mode 7A: triggerAutoProgressBar(A=2.0) - Fire & Forget Physics";
-                    let fillTime = 1.0; let holdTime = 0.2; let fadeTime = 0.5;
+                    let fillT = 1.0, holdT = 0.2, fadeT = 0.5;
                     function renderAutoPB() {
                         let elapsed = (performance.now() - startTime) / 1000;
                         leds.forEach((l, i) => {
                             let ledPos = i / ledCount;
-                            if (elapsed < fillTime) {
-                                let progress = Math.pow(elapsed / fillTime, 2); // Accelerate
-                                if (ledPos < progress) setLedColor(l, 0, 240, 255, 1);
-                                else setLedColor(l, 0, 0, 0, 0);
-                            } else if (elapsed < fillTime + holdTime) {
-                                setLedColor(l, 0, 240, 255, 1); // Hold
-                            } else if (elapsed < fillTime + holdTime + fadeTime) {
-                                let fadeProgress = (elapsed - fillTime - holdTime) / fadeTime;
-                                if (ledPos < fadeProgress) setLedColor(l, 0, 0, 0, 0); // Erase
-                                else setLedColor(l, 0, 240, 255, 1);
-                            } else {
-                                setLedColor(l, 0, 0, 0, 0);
-                            }
+                            if (elapsed < fillT) { if (ledPos < Math.pow(elapsed / fillT, 2)) setLedColor(l, 0, 240, 255, 1); else setLedColor(l, 0, 0, 0, 0); } 
+                            else if (elapsed < fillT + holdT) { setLedColor(l, 0, 240, 255, 1); } 
+                            else if (elapsed < fillT + holdT + fadeT) { if (ledPos < (elapsed - fillT - holdT) / fadeT) setLedColor(l, 0, 0, 0, 0); else setLedColor(l, 0, 240, 255, 1); } 
+                            else { setLedColor(l, 0, 0, 0, 0); }
                         });
-                        if(elapsed < fillTime + holdTime + fadeTime + 0.1) animationFrameId = requestAnimationFrame(renderAutoPB);
+                        if(elapsed < fillT + holdT + fadeT + 0.1) animationFrameId = requestAnimationFrame(renderAutoPB);
                         else statusText.innerText = "> Mode 7A: Animation complete. I2C Bus idle.";
                     }
                     renderAutoPB();
                     break;
-
                 case 'pb-manual':
                     manualUnits += 3.34; if(manualUnits > 10.5) manualUnits = 0;
                     statusText.innerText = `> Mode 7B: addManualProgress() - Loaded Element. Units: ${manualUnits.toFixed(1)}/10`;
-                    let targetRatio = manualUnits / 10;
-                    leds.forEach((l, i) => {
-                        let ledPos = (i + 1) / ledCount;
-                        if (ledPos <= targetRatio) setLedColor(l, 0, 255, 0, 1);
-                        else setLedColor(l, 0, 0, 0, 0);
-                    });
+                    leds.forEach((l, i) => { if ((i + 1) / ledCount <= manualUnits / 10) setLedColor(l, 0, 255, 0, 1); else setLedColor(l, 0, 0, 0, 0); });
                     break;
             }
         }
 
         function triggerBuzzer() {
             statusText.innerText = "> Hardware: beep(2000Hz, 150ms) - Acoustic-optic sync triggered";
-            strip.style.transform = "scale(1.03)";
-            strip.style.borderColor = "var(--v3-green)";
+            strip.style.transform = "scale(1.03)"; strip.style.borderColor = "var(--v3-green)";
             setTimeout(() => { strip.style.transform = "scale(0.98)"; }, 50);
             setTimeout(() => { strip.style.transform = "scale(1.01)"; }, 100);
-            setTimeout(() => { 
-                strip.style.transform = "scale(1)"; 
-                strip.style.borderColor = "#333";
-            }, 150);
+            setTimeout(() => { strip.style.transform = "scale(1)"; strip.style.borderColor = "#333"; }, 150);
         }
     </script>
 </body>
