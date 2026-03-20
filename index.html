@@ -9,24 +9,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- 现代科技风 核心变量 --- */
+        /* --- 极致现代科技风 核心变量 --- */
         :root {
-            --bg-base: #09090b;       
-            --bg-surface: rgba(255, 255, 255, 0.03); 
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.2);
-            --text-main: #f4f4f5;
+            --bg-base: #000000; /* 更纯粹的黑 */
+            --bg-surface: rgba(255, 255, 255, 0.02);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --text-main: #ededed;
             --text-muted: #a1a1aa;
             
-            /* 渐变色 */
-            --accent-cyan: #22d3ee;
-            --accent-violet: #818cf8;
-            --accent-pink: #f472b6;
-            --alert-orange: #f59e0b;
-            --alert-yellow: #eab308;
+            /* 霓虹渐变 */
+            --accent-cyan: #00f0ff;
+            --accent-violet: #8a2be2;
+            --accent-pink: #ff007f;
+            --alert-orange: #ff5e00;
+            --alert-yellow: #facc15;
+            
+            /* 丝滑过渡 */
+            --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
             background-color: var(--bg-base);
@@ -37,413 +41,374 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- 弥散光渐变背景 (Aurora Effect) --- */
+        /* --- 1. 物理质感层：噪点与动态网格 --- */
+        .noise-bg {
+            position: fixed; inset: 0; z-index: 9999;
+            pointer-events: none; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        .grid-bg {
+            position: fixed; inset: 0; z-index: -2;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at top, black 20%, transparent 80%);
+        }
+
+        /* --- 2. 弥散光增强 (更深邃的极光效果) --- */
         .ambient-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -1;
-            overflow: hidden;
-            background: var(--bg-base);
+            position: fixed; inset: 0; z-index: -1;
+            overflow: hidden; background: transparent;
         }
         .blob {
-            position: absolute;
-            filter: blur(100px);
-            opacity: 0.25;
-            border-radius: 50%;
-            animation: float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute; filter: blur(120px); border-radius: 50%;
+            animation: float 25s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.4;
         }
-        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-violet); }
-        .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--accent-cyan); animation-delay: -5s; }
-        .blob-3 { top: 40%; left: 50%; width: 40vw; height: 40vw; background: var(--accent-pink); opacity: 0.15; animation-delay: -10s; }
+        .blob-1 { top: -20%; left: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--accent-violet) 0%, transparent 70%); }
+        .blob-2 { bottom: -30%; right: -20%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%); animation-delay: -5s; }
+        .blob-3 { top: 30%; left: 40%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--accent-pink) 0%, transparent 70%); opacity: 0.2; animation-delay: -12s; }
 
         @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(10%, 15%) scale(1.1); }
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(5%, 10%) scale(1.15) rotate(15deg); }
         }
 
-        /* --- 顶部导航栏 --- */
+        /* --- 导航栏 --- */
         nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 5%;
-            background: rgba(9, 9, 11, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 6%; background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            position: sticky; top: 0; z-index: 100;
             border-bottom: 1px solid var(--border-subtle);
         }
-        .logo { 
-            height: 36px; 
-            object-fit: contain;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
-        }
+        .logo { height: 32px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
         .nav-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            margin-left: 32px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.3s ease;
+            color: var(--text-muted); text-decoration: none; margin-left: 36px;
+            font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px;
+            transition: var(--transition-smooth);
         }
-        .nav-links a:hover { color: #fff; }
+        .nav-links a:hover { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+        /* --- 滚动揭示动画类 --- */
+        .reveal { opacity: 0; transform: translateY(40px) scale(0.98); transition: var(--transition-smooth); }
+        .reveal.active { opacity: 1; transform: translateY(0) scale(1); }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
 
         /* --- 主视觉区域 (Hero) --- */
         .hero {
-            min-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 40px 20px;
-            position: relative;
+            min-height: 85vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            padding: 60px 20px; position: relative;
         }
 
         .version-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 99px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--accent-cyan);
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px; background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 99px;
+            font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;
+            color: var(--accent-cyan); margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
         }
         .version-badge .dot {
-            width: 6px; height: 6px;
-            background: var(--accent-cyan);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent-cyan);
+            width: 6px; height: 6px; background: var(--accent-cyan);
+            border-radius: 50%; box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
+            animation: pulse 2s infinite;
         }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
         h1 {
-            font-size: clamp(3.5rem, 8vw, 7rem);
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            line-height: 1.1;
-            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 24px;
+            font-size: clamp(3.5rem, 8vw, 7.5rem); font-weight: 800;
+            letter-spacing: -0.05em; line-height: 1.05;
+            background: linear-gradient(180deg, #ffffff 0%, #71717a 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 24px; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
         }
 
         .subtitle {
-            font-size: 1.15rem;
-            color: var(--text-muted);
-            max-width: 540px;
-            margin-bottom: 48px;
-            line-height: 1.6;
+            font-size: 1.15rem; color: var(--text-muted); max-width: 600px;
+            margin-bottom: 50px; line-height: 1.7; font-weight: 400;
         }
 
-        /* 高级感按钮 */
+        /* --- 极客风按钮 --- */
         .cta-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
         
         .btn {
-            padding: 14px 32px;
-            border-radius: 99px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            border: none;
+            padding: 14px 32px; border-radius: 99px; font-weight: 600; font-size: 0.95rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+            cursor: pointer; border: none; position: relative; overflow: hidden;
+            transition: var(--transition-smooth);
         }
 
+        /* 主按钮流光效果 */
         .btn-primary {
-            background: #ffffff;
-            color: #000000;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 8px 20px rgba(255,255,255,0.15);
+            background: #fff; color: #000;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 10px 30px rgba(255,255,255,0.15);
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+            transition: all 0.5s ease;
         }
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 12px 25px rgba(255,255,255,0.25);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 15px 40px rgba(255,255,255,0.3);
         }
+        .btn-primary:hover::before { left: 100%; }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            border: 1px solid var(--border-subtle);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.03); color: #fff;
+            border: 1px solid var(--border-subtle); backdrop-filter: blur(10px);
         }
         .btn-secondary:hover { 
-            background: rgba(255, 255, 255, 0.08); 
-            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.08); border-color: var(--border-hover);
+            transform: translateY(-3px);
         }
 
-        /* --- 弹窗 UI (Modal) --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
-            z-index: 1000; display: none; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.3s ease;
-        }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        
-        .modal-container {
-            background: #111113; width: 90%; max-width: 680px;
-            border-radius: 24px; border: 1px solid var(--border-subtle);
-            padding: 40px; position: relative; transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; max-height: 90vh;
-        }
-        .modal-overlay.active .modal-container { transform: scale(1); }
-
-        .modal-header h2 { font-size: 1.5rem; margin-bottom: 8px; color: #fff; }
-        .modal-header p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
-
-        .terms-box {
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle);
-            border-radius: 12px; height: 320px; overflow-y: auto; padding: 24px;
-            font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px;
-            text-align: left;
-        }
-        .terms-box h4 { color: #fff; margin: 20px 0 8px 0; font-size: 0.95rem; }
-        .terms-box h4:first-child { margin-top: 0; }
-        .terms-box p { margin-bottom: 12px; }
-        .terms-box pre { 
-            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; 
-            white-space: pre-wrap; word-wrap: break-word; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; 
-            margin-bottom: 12px; color: #999;
-        }
-
-        .terms-box::-webkit-scrollbar { width: 6px; }
-        .terms-box::-webkit-scrollbar-track { background: transparent; }
-        .terms-box::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-        .terms-box::-webkit-scrollbar-thumb:hover { background: #555; }
-
-        .agreement-label {
-            display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
-            font-size: 0.9rem; color: var(--text-main); margin-bottom: 30px; text-align: left;
-            user-select: none;
-        }
-        .agreement-label input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent-cyan); cursor: pointer; }
-
-        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border-subtle); padding-top: 24px; }
-        
-        #final-download-btn {
-            background: var(--text-muted); color: #000; pointer-events: none; opacity: 0.5;
-            transition: all 0.3s ease;
-        }
-        #final-download-btn.ready {
-            background: #fff; pointer-events: auto; opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.2);
-        }
-
-        /* --- 警告提示区 (Notices) --- */
+        /* --- 警告提示区 (优化卡片光影) --- */
         .notices-section {
-            max-width: 900px;
-            margin: -20px auto 80px auto;
-            padding: 0 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            position: relative;
-            z-index: 10;
+            max-width: 900px; margin: 0 auto 100px auto; padding: 0 20px;
+            display: flex; flex-direction: column; gap: 20px; z-index: 10;
         }
 
         .alert-card {
-            background: rgba(15, 15, 17, 0.6);
-            backdrop-filter: blur(12px);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid var(--border-subtle);
-            border-left: 4px solid;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            transition: transform 0.3s ease;
+            background: rgba(15, 15, 17, 0.4); backdrop-filter: blur(16px);
+            border-radius: 16px; padding: 24px; border: 1px solid var(--border-subtle);
+            border-left: 4px solid; display: flex; flex-direction: column; gap: 12px;
+            transition: var(--transition-smooth); position: relative; overflow: hidden;
         }
-        .alert-card:hover { transform: translateX(4px); }
+        /* 卡片内部的环境光折射 */
+        .alert-card::after {
+            content: ''; position: absolute; top: 0; right: 0; width: 300px; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02)); pointer-events: none;
+        }
+        .alert-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); }
         
         .alert-card.critical { 
             border-left-color: var(--alert-orange);
-            background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+            background: linear-gradient(90deg, rgba(255, 94, 0, 0.05) 0%, rgba(15,15,17,0.4) 100%);
         }
         .alert-card.warning { 
             border-left-color: var(--alert-yellow);
-            background: linear-gradient(90deg, rgba(234, 179, 8, 0.05) 0%, transparent 100%);
+            background: linear-gradient(90deg, rgba(250, 204, 21, 0.05) 0%, rgba(15,15,17,0.4) 100%);
         }
 
-        .alert-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            font-size: 1.05rem;
-        }
+        .alert-title { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px; }
         .critical .alert-title { color: var(--alert-orange); }
         .warning .alert-title { color: var(--alert-yellow); }
+        .alert-content p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.7; }
+        .alert-content strong { color: #fff; }
 
-        .alert-content p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            line-height: 1.6;
-        }
-        .alert-content p:last-child { margin-bottom: 0; }
-        .alert-content strong { color: var(--text-main); font-weight: 500; }
-
-        /* --- 交互式 LED 演示区 --- */
-        .demo-section {
-            padding: 60px 5%;
-            position: relative;
-            z-index: 10;
-            text-align: center;
-        }
-
-        .section-title { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
-        .section-subtitle { color: var(--text-muted); margin-bottom: 50px; font-size: 0.95rem; }
+        /* --- 交互式 LED 演示区 (更硬核的PCB质感) --- */
+        .demo-section { padding: 80px 5%; position: relative; z-index: 10; text-align: center; }
+        .section-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px; }
+        .section-subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.05rem; }
 
         .led-strip-container {
-            width: 100%; max-width: 800px; height: 54px;
-            background: linear-gradient(to bottom, #18181b, #09090b);
-            margin: 0 auto 50px auto; border-radius: 12px;
-            border: 1px solid #27272a;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 20px 40px rgba(0,0,0,0.4);
+            width: 100%; max-width: 850px; height: 64px;
+            background: #09090b; /* 纯黑底板 */
+            background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .03) 25%, rgba(255, 255, 255, .03) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .03) 75%, rgba(255, 255, 255, .03) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .03) 25%, rgba(255, 255, 255, .03) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .03) 75%, rgba(255, 255, 255, .03) 76%, transparent 77%, transparent);
+            background-size: 20px 20px;
+            margin: 0 auto 50px auto; border-radius: 8px;
+            border: 2px solid #1f1f22; border-bottom-color: #333;
+            box-shadow: inset 0 5px 20px rgba(0,0,0,0.9), 0 30px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
             display: flex; align-items: center; justify-content: space-evenly;
-            padding: 0 15px; position: relative;
+            padding: 0 20px; position: relative;
         }
+        /* 模拟 PCB 上的安装孔 */
         .led-strip-container::before, .led-strip-container::after {
-            content: ''; width: 8px; height: 8px; background: #09090b;
-            border-radius: 50%; border: 1px solid #3f3f46;
+            content: ''; width: 12px; height: 12px; background: #000;
+            border-radius: 50%; border: 2px solid #3f3f46; box-shadow: inset 0 2px 4px rgba(0,0,0,1);
         }
 
+        /* SMD 5050 拟真灯珠 */
         .led {
-            width: 16px; height: 16px; background-color: #27272a;
-            border-radius: 50%; position: relative; transition: all 0.15s ease-out;
+            width: 18px; height: 18px; background-color: #111;
+            border-radius: 4px; border: 1px solid #222; position: relative;
+            transition: background-color 0.1s, box-shadow 0.1s;
         }
+        /* 灯珠中心的发光核心 */
         .led::after {
-            content: ''; position: absolute; top: 30%; left: 30%;
-            width: 40%; height: 40%; background: rgba(255,255,255,0.8);
-            border-radius: 50%; opacity: 0; transition: opacity 0.15s;
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 8px; height: 8px; background: rgba(255,255,255,0.1);
+            border-radius: 50%; transition: opacity 0.1s, background 0.1s;
         }
-        .led.active::after { opacity: 1; }
+        .led.active::after { background: #fff; box-shadow: 0 0 10px #fff; }
 
-        .control-panel {
-            display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; max-width: 900px; margin: 0 auto;
-        }
-
+        .control-panel { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
         .ctrl-btn {
-            background: var(--bg-surface); border: 1px solid var(--border-subtle);
-            color: var(--text-muted); padding: 12px 20px; border-radius: 8px; cursor: pointer;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; transition: all 0.2s; backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle);
+            color: var(--text-muted); padding: 14px 24px; border-radius: 12px; cursor: pointer;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600;
+            transition: var(--transition-smooth); backdrop-filter: blur(10px);
         }
         .ctrl-btn:hover { 
-            border-color: var(--border-hover); color: #fff;
-            background: rgba(255, 255, 255, 0.06); transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.3); color: #fff;
+            background: rgba(255, 255, 255, 0.08); transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
-        .ctrl-btn:active { transform: translateY(0); }
+        .ctrl-btn:active { transform: translateY(0) scale(0.98); }
 
         #status-text {
-            margin-top: 30px; font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-violet); font-size: 0.9rem; min-height: 20px; opacity: 0.8;
+            margin-top: 40px; font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan); font-size: 0.95rem; min-height: 20px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
-        /* --- 特性卡片 Grid --- */
+        /* --- 特性卡片 Grid (3D 悬浮感) --- */
         .features {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px; max-width: 1100px; margin: 0 auto; padding: 50px 5%;
+            gap: 24px; max-width: 1200px; margin: 0 auto; padding: 50px 5% 100px 5%;
         }
 
         .card {
-            background: var(--bg-surface); border: 1px solid var(--border-subtle);
-            padding: 40px 30px; border-radius: 20px; backdrop-filter: blur(20px);
-            transition: all 0.3s ease; position: relative; overflow: hidden;
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid var(--border-subtle); padding: 40px 32px; border-radius: 24px;
+            backdrop-filter: blur(20px); transition: var(--transition-smooth);
+            position: relative; overflow: hidden;
         }
+        /* 卡片顶部的高光线 */
         .card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at top left, rgba(255,255,255,0.05), transparent 70%);
-            opacity: 0; transition: opacity 0.3s ease;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            opacity: 0.3; transition: opacity 0.3s;
         }
-        .card:hover { transform: translateY(-5px); border-color: var(--border-hover); }
-        .card:hover::before { opacity: 1; }
+        /* 悬浮光晕 */
+        .card::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06), transparent 40%);
+            opacity: 0; transition: opacity 0.5s; pointer-events: none;
+        }
+        .card:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.15); box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+        .card:hover::before, .card:hover::after { opacity: 1; }
         
         .card-icon {
-            width: 48px; height: 48px; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-subtle); border-radius: 12px;
+            width: 54px; height: 54px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle); border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem; margin-bottom: 24px;
+            font-size: 1.5rem; margin-bottom: 24px; box-shadow: inset 0 2px 10px rgba(255,255,255,0.02);
         }
-        .card h3 { font-size: 1.25rem; margin-bottom: 12px; color: #fff; font-weight: 600; }
-        .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
-        .card-desc-zh { margin-top: 8px; font-size: 0.85rem !important; opacity: 0.7; }
+        .card h3 { font-size: 1.35rem; margin-bottom: 12px; color: #fff; font-weight: 700; letter-spacing: -0.5px; }
+        .card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+        .card-desc-zh { margin-top: 10px; font-size: 0.85rem !important; color: #71717a !important; }
         
         .code-tag {
-            position: absolute; top: 30px; right: 30px; font-family: 'JetBrains Mono';
-            font-size: 0.75rem; background: rgba(255, 255, 255, 0.05); color: var(--text-muted);
-            border: 1px solid var(--border-subtle); padding: 4px 10px; border-radius: 99px;
+            position: absolute; top: 32px; right: 32px; font-family: 'JetBrains Mono';
+            font-size: 0.75rem; background: rgba(255, 255, 255, 0.05); color: var(--accent-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.2); padding: 4px 12px; border-radius: 99px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.05);
         }
 
-        /* --- 代码展示区 --- */
+        /* --- 代码展示区 (Apple MacOS 视窗质感) --- */
         .code-showcase {
-            max-width: 800px; margin: 100px auto; background: rgba(9, 9, 11, 0.7);
-            border-radius: 16px; border: 1px solid var(--border-subtle);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.4); backdrop-filter: blur(20px); overflow: hidden;
+            max-width: 850px; margin: 0 auto 120px auto; background: #09090b;
+            border-radius: 20px; border: 1px solid var(--border-subtle);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+            overflow: hidden; position: relative; z-index: 10;
         }
+        /* 代码块背后的泛光 */
+        .code-showcase::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 180deg at 50% 50%, transparent 0deg, var(--accent-violet) 180deg, transparent 360deg);
+            opacity: 0.15; z-index: -1; animation: spin 10s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         .code-header {
-            background: rgba(255,255,255,0.02); padding: 16px 20px; display: flex;
+            background: rgba(255,255,255,0.03); padding: 16px 24px; display: flex;
             align-items: center; border-bottom: 1px solid var(--border-subtle);
+            backdrop-filter: blur(10px);
         }
         .window-controls { display: flex; gap: 8px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); }
         .red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
-        .file-name { margin: 0 auto; color: var(--text-muted); font-size: 0.85rem; font-family: 'Inter'; font-weight: 500; transform: translateX(-25px); }
+        .file-name { margin: 0 auto; color: var(--text-muted); font-size: 0.85rem; font-family: 'JetBrains Mono'; font-weight: 500; transform: translateX(-30px); }
         
         .code-showcase pre {
-            padding: 30px; overflow-x: auto; color: #e4e4e7;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.7;
+            padding: 40px; overflow-x: auto; color: #e4e4e7; background: rgba(0,0,0,0.6);
+            font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.8; margin: 0;
         }
-        .k-keyword { color: #c678dd; } 
-        .k-function { color: #61afef; } 
-        .k-type { color: #e5c07b; } 
-        .k-string { color: #98c379; } 
-        .k-comment { color: #5c6370; font-style: italic; }
+        .k-keyword { color: #ff7b72; } /* GitHub Dark 语法高亮色系 */
+        .k-function { color: #d2a8ff; } 
+        .k-type { color: #79c0ff; } 
+        .k-string { color: #a5d6ff; } 
+        .k-comment { color: #8b949e; font-style: italic; }
 
         footer {
             text-align: center; padding: 60px 20px; color: var(--text-muted);
-            font-size: 0.85rem; border-top: 1px solid var(--border-subtle); margin-top: 50px;
+            font-size: 0.85rem; border-top: 1px solid var(--border-subtle);
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
         }
         footer strong { color: #fff; font-weight: 600; }
 
+        /* --- 弹窗样式优化 (Modal) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(16px);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-container {
+            background: #09090b; width: 90%; max-width: 700px;
+            border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px; position: relative; transform: scale(0.95) translateY(20px); 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; max-height: 90vh;
+        }
+        .modal-overlay.active .modal-container { transform: scale(1) translateY(0); }
+        /* 弹窗内部样式保持原样，略调颜色 */
+        .modal-header h2 { font-size: 1.8rem; margin-bottom: 8px; color: #fff; letter-spacing: -0.5px; }
+        .modal-header p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
+        .terms-box {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle);
+            border-radius: 16px; height: 320px; overflow-y: auto; padding: 24px;
+            font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px;
+        }
+        .terms-box h4 { color: #fff; margin: 20px 0 8px 0; font-size: 1rem; }
+        .terms-box pre { background: rgba(0,0,0,0.5); padding: 16px; border-radius: 8px; white-space: pre-wrap; font-family: 'JetBrains Mono'; font-size: 0.8rem; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .terms-box::-webkit-scrollbar { width: 4px; }
+        .terms-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .agreement-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 0.95rem; color: #fff; margin-bottom: 30px; user-select: none; }
+        .agreement-label input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent-cyan); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid var(--border-subtle); padding-top: 24px; }
+        #final-download-btn { background: #3f3f46; color: #a1a1aa; pointer-events: none; opacity: 0.5; }
+        #final-download-btn.ready { background: #fff; color: #000; pointer-events: auto; opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+
         @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .led-strip-container { height: 44px; }
-            .led { width: 12px; height: 12px; }
-            .control-panel { flex-direction: column; width: 100%; padding: 0 20px; }
-            .code-showcase pre { font-size: 0.8rem; padding: 20px; }
+            h1 { font-size: 3rem; }
+            .led-strip-container { height: 50px; padding: 0 10px; }
+            .led { width: 14px; height: 14px; }
+            .card { padding: 30px 20px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 弥散光背景 -->
+    <div class="noise-bg"></div>
+    <div class="grid-bg"></div>
+
     <div class="ambient-bg">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
         <div class="blob blob-3"></div>
     </div>
 
-    <!-- 导航栏 -->
     <nav>
-        <img src="96507b78b3b3e62f9de351ea397a7a51.png" alt="BYNX" class="logo">
+        <img src="96507b78b3b3e62f9de351ea397a7a51.png" alt="BYNX" class="logo" onerror="this.style.display='none'">
         <div class="nav-links">
             <a href="#features">Features</a>
             <a href="#demo">Simulation</a>
-            <a href="https://github.com/BlueDarkUP" target="_blank">GitHub Repository</a>
+            <a href="https://github.com/BlueDarkUP" target="_blank">GitHub</a>
         </div>
     </nav>
 
-    <!-- 主视觉 -->
-    <section class="hero">
+    <section class="hero reveal">
         <div class="version-badge">
             <span class="dot"></span> Driver v2.0 Available
         </div>
@@ -463,82 +428,37 @@
         </div>
     </section>
 
-    <!-- 下载协议弹窗 (Modal) -->
-    <div class="modal-overlay" id="downloadModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2>Terms and Conditions</h2>
-                <p>下载 KIRIN 驱动程序前，请仔细阅读以下协议与免责声明</p>
-            </div>
-            
-            <div class="terms-box">
-                <h4>1. MIT License (开源许可)</h4>
-                <p>Copyright (c) 2026 BYNX KIRIN Project</p>
-                <pre>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</pre>
-                
-                <h4>2. I2C Bandwidth Limitation (技术性风险声明)</h4>
-                <p><strong>EN:</strong> Due to Control Hub's I2C bandwidth constraints, frequent LED updates (high-frequency calls in a loop) may interfere with other I2C devices (IMU, Sensors), leading to sensor lag or robot out-of-control. Do not adjust lights frequently within active loops.</p>
-                <p><strong>中文：</strong> 由于 Control Hub 的 I2C 带宽限制，高频调整灯光会导致总线拥堵，可能引起 IMU、传感器数据回传延迟。在手动控制中可能导致失控，在自动控制中可能导致定位坐标偏移。请绝对避免在主循环(Loop)中不加限制地频繁写入灯光指令。</p>
-                
-                <h4>3. FTC Compliance (赛事合规性声明)</h4>
-                <p><strong>EN:</strong> Users are responsible for ensuring their light patterns comply with the official FTC Game Manual. BYNX is not responsible for any penalties or fouls incurred.</p>
-                <p><strong>中文：</strong> 用户需自行负责确保所编写的灯光效果（亮度、频闪率等）符合 FTC 官方赛季手册的规定。BYNX 团队不对因灯光违规造成的扣分或犯规负责。</p>
-            </div>
-
-            <label class="agreement-label">
-                <input type="checkbox" id="agreeCheckbox">
-                <span>我已阅读并完全知晓 I2C 带宽风险与合规性要求，同意上述许可协议。</span>
-            </label>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeDownloadModal()">Cancel</button>
-                <a id="final-download-btn" href="LedModuleDriver.java" download class="btn">Confirm & Download</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- 警告提示区 -->
     <section class="notices-section">
-        <!-- I2C 带宽严重警告 -->
-        <div class="alert-card critical">
+        <div class="alert-card critical reveal delay-1">
             <div class="alert-title">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 Bandwidth & Performance Warning / 性能与带宽警告
             </div>
             <div class="alert-content">
-                <p><strong>EN:</strong> Due to the limited I2C bandwidth of the Control Hub, sending commands to KIRIN may temporarily cause other I2C devices on the same hub to become unresponsive, delaying sensor data retrieval. Please <strong>do not adjust lights frequently within active loops</strong>. In TeleOp, this may lead to input lag or loss of control; in Autonomous, it could result in odometry drift and pathing deviations.</p>
-                <p><strong>ZH:</strong> 由于 Control Hub 的 I2C 带宽有限，向 KIRIN 发送指令期间可能会导致同一个 Hub 上的其他 I2C 设备短暂无响应，致使无法及时传回传感器数据。<strong>请不要在主循环中频繁地调整灯光</strong>。在手动程序中这可能导致操作迟钝或失控，在自动阶段可能导致坐标系偏移或车体脱离路径。</p>
+                <p><strong>EN:</strong> Due to the limited I2C bandwidth of the Control Hub, sending commands to KIRIN may temporarily cause other I2C devices to become unresponsive. Please <strong>do not adjust lights frequently within active loops</strong>.</p>
+                <p><strong>ZH:</strong> 由于 Control Hub 带宽有限，频繁发送指令会导致其他 I2C 设备（如 IMU）掉线。<strong>请绝对避免在 while 循环中不加限制地连续写入灯光指令</strong>。</p>
             </div>
         </div>
 
-        <!-- 比赛规则警告 -->
-        <div class="alert-card warning">
+        <div class="alert-card warning reveal delay-2">
             <div class="alert-title">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Compliance Notice / 比赛合规提示
             </div>
             <div class="alert-content">
-                <p><strong>EN:</strong> The FTC Game Manual contains strict regulations regarding optical effects and brightness. Please carefully check if your light patterns comply with the current season's rules before matches to avoid unnecessary penalties or fouls.</p>
-                <p><strong>ZH:</strong> FTC 赛季手册对机器人的光效有明确的规定。请在比赛上场前仔细检查您的灯光模式（如闪烁频率、亮度等）是否违规，以避免在场上造成不必要的犯规。</p>
+                <p><strong>EN:</strong> Ensure your light patterns comply with the FTC Game Manual to avoid fouls.</p>
+                <p><strong>ZH:</strong> 赛场上请确保您的光效（亮度、频闪率）符合当前赛季的 FTC 手册规定，以免引发意外犯规。</p>
             </div>
         </div>
     </section>
 
-    <!-- 交互式模拟区 -->
-    <section id="demo" class="demo-section">
+    <section id="demo" class="demo-section reveal">
         <h2 class="section-title">Live Hardware Simulation</h2>
         <p class="section-subtitle">Click buttons to test the TeleOp mapping logic directly in your browser.</p>
         
-        <!-- 模拟灯带 -->
         <div class="led-strip-container" id="ledStrip">
-            <!-- JS生成 -->
-        </div>
+            </div>
 
-        <!-- 模拟控制台 -->
         <div class="control-panel">
             <button class="ctrl-btn" onclick="setMode('solid-red')">pad1.A [Solid Red]</button>
             <button class="ctrl-btn" onclick="setMode('solid-cyan')">pad1.B[Solid Cyan]</button>
@@ -548,33 +468,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             <button class="ctrl-btn" onclick="setMode('off')">dpad_down [Turn OFF]</button>
             <button class="ctrl-btn" onclick="triggerBuzzer()">LB/RB [Trigger Beep]</button>
         </div>
-        <div id="status-text">&gt; System initialized. Awaiting commands...</div>
+        <div id="status-text">&gt; System initialized. Awaiting I2C commands...</div>
     </section>
 
-    <!-- 特性展示 -->
     <section id="features" class="features">
-        <div class="card">
+        <div class="card reveal">
             <div class="card-icon">🌊</div>
             <h3>Dual-Color Wave</h3>
             <p>Creates a smooth breathing animation between two colors.</p>
             <p class="card-desc-zh">支持双色混合呼吸流水，速度可调。</p>
             <span class="code-tag">ENTW</span>
         </div>
-        <div class="card">
+        <div class="card reveal delay-1">
             <div class="card-icon">🚨</div>
             <h3>Police Strobe</h3>
             <p>High-frequency alternating flash pattern for alerts.</p>
             <p class="card-desc-zh">警灯爆闪模式，分组交替闪烁。</p>
             <span class="code-tag">ENTST</span>
         </div>
-        <div class="card">
+        <div class="card reveal delay-2">
             <div class="card-icon">🔊</div>
             <h3>Integrated Buzzer</h3>
             <p>Simultaneous sound feedback via I2C commands.</p>
             <p class="card-desc-zh">板载蜂鸣器，支持自定义频率和时长。</p>
             <span class="code-tag">BENT</span>
         </div>
-        <div class="card">
+        <div class="card reveal">
             <div class="card-icon">🆔</div>
             <h3>Smart ID Assign</h3>
             <p>Auto-standby after ID assignment (Orange flash on boot).</p>
@@ -583,8 +502,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         </div>
     </section>
 
-    <!-- 代码展示 -->
-    <section class="code-showcase">
+    <section class="code-showcase reveal">
         <div class="code-header">
             <div class="window-controls">
                 <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
@@ -604,67 +522,97 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
     <footer>
         <p>MANUFACTURED BY <strong>FTC TEAM 27570</strong> &nbsp;|&nbsp; PUBLISHED BY <strong>BYNX</strong></p>
-        <p style="margin-top: 10px; opacity: 0.6;">Copyright &copy; 2026 KIRIN PROJECT. All Rights Reserved.</p>
+        <p style="margin-top: 10px; opacity: 0.4;">Copyright &copy; 2026 KIRIN PROJECT. All Rights Reserved.</p>
     </footer>
 
-    <!-- 交互脚本 -->
+    <div class="modal-overlay" id="downloadModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Terms and Conditions</h2>
+                <p>下载 KIRIN 驱动程序前，请仔细阅读以下协议与免责声明</p>
+            </div>
+            
+            <div class="terms-box">
+                <h4>1. MIT License (开源许可)</h4>
+                <p>Copyright (c) 2026 BYNX KIRIN Project</p>
+                <pre>Permission is hereby granted, free of charge... (Standard MIT terms apply)</pre>
+                
+                <h4>2. I2C Bandwidth Limitation</h4>
+                <p><strong>EN:</strong> Do not adjust lights frequently within active loops to prevent I2C bus congestion.</p>
+                
+                <h4>3. FTC Compliance</h4>
+                <p><strong>EN:</strong> Users are responsible for ensuring light patterns comply with official rules.</p>
+            </div>
+
+            <label class="agreement-label">
+                <input type="checkbox" id="agreeCheckbox">
+                <span>我已阅读并完全知晓 I2C 带宽风险与合规性要求，同意上述许可协议。</span>
+            </label>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDownloadModal()">Cancel</button>
+                <a id="final-download-btn" href="LedModuleDriver.java" download class="btn btn-primary">Confirm & Download</a>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // --- 1. 滚动揭示动画 (Intersection Observer) ---
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    revealObserver.unobserve(entry.target); // 触发一次后取消监听
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // --- 2. 卡片 3D 悬浮光效跟随鼠标 ---
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
         // --- 弹窗逻辑 ---
         const modal = document.getElementById('downloadModal');
         const checkbox = document.getElementById('agreeCheckbox');
         const downloadBtn = document.getElementById('final-download-btn');
 
-        function openDownloadModal() {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // 禁止底页滚动
-        }
-
-        function closeDownloadModal() {
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto'; // 恢复滚动
-        }
-
-        // 监听复选框状态
+        function openDownloadModal() { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeDownloadModal() { modal.classList.remove('active'); document.body.style.overflow = 'auto'; }
         checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                downloadBtn.classList.add('ready');
-            } else {
-                downloadBtn.classList.remove('ready');
-            }
+            this.checked ? downloadBtn.classList.add('ready') : downloadBtn.classList.remove('ready');
         });
-
-        // 点击背景区域关闭弹窗
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) closeDownloadModal();
-        });
-
+        modal.addEventListener('click', e => { if (e.target === modal) closeDownloadModal(); });
 
         // --- LED 模拟逻辑 ---
         const strip = document.getElementById('ledStrip');
         const ledCount = 16;
         let animationInterval = null;
 
-        // 生成LED灯珠
         for(let i=0; i<ledCount; i++) {
             let led = document.createElement('div');
-            led.className = 'led';
-            led.id = 'led-' + i;
+            led.className = 'led'; led.id = 'led-' + i;
             strip.appendChild(led);
         }
 
         function clearEffects() {
             if(animationInterval) clearInterval(animationInterval);
             document.querySelectorAll('.led').forEach(l => {
-                l.style.backgroundColor = '#27272a';
-                l.style.boxShadow = 'none';
-                l.classList.remove('active');
+                l.style.backgroundColor = '#111'; l.style.boxShadow = 'none'; l.classList.remove('active');
             });
         }
 
-        // 高级发光效果封装
-        function setLedColor(el, color, blur = 15) {
+        function setLedColor(el, color, blur = 20) {
             el.style.backgroundColor = color;
-            el.style.boxShadow = `0 0 ${blur}px ${color}, 0 0 ${blur * 2}px ${color}`;
+            el.style.boxShadow = `0 0 ${blur}px ${color}, inset 0 0 5px rgba(255,255,255,0.5)`;
             el.classList.add('active');
         }
 
@@ -676,8 +624,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                 status.innerText = "> Executing: setSolidColor(0xFF0044)";
                 document.querySelectorAll('.led').forEach(l => setLedColor(l, '#ff0044'));
             } else if (mode === 'solid-cyan') {
-                status.innerText = "> Executing: setSolidColor(0x22D3EE)";
-                document.querySelectorAll('.led').forEach(l => setLedColor(l, '#22d3ee'));
+                status.innerText = "> Executing: setSolidColor(0x00F0FF)";
+                document.querySelectorAll('.led').forEach(l => setLedColor(l, '#00f0ff'));
             } else if (mode === 'off') {
                 status.innerText = "> Executing: turnOff() - Standby Mode";
             } else if (mode === 'single') {
@@ -690,12 +638,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                     offset++;
                     document.querySelectorAll('.led').forEach((l, index) => {
                         let val = Math.sin((index + offset) * 0.4) * 0.5 + 0.5; 
-                        // Violet (129, 140, 248) to Cyan (34, 211, 238) interpolation
-                        let r = Math.floor(129 + (34 - 129) * val);
-                        let g = Math.floor(140 + (211 - 140) * val);
-                        let b = Math.floor(248 + (238 - 248) * val);
-                        let col = `rgb(${r}, ${g}, ${b})`;
-                        setLedColor(l, col, val * 15 + 5);
+                        let r = Math.floor(138 + (0 - 138) * val);
+                        let g = Math.floor(43 + (240 - 43) * val);
+                        let b = Math.floor(226 + (255 - 226) * val);
+                        setLedColor(l, `rgb(${r}, ${g}, ${b})`, val * 25 + 5);
                     });
                 }, 50);
             } else if (mode === 'strobe') {
@@ -705,11 +651,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                     toggle = !toggle;
                     document.querySelectorAll('.led').forEach((l, index) => {
                         let isRedZone = index < ledCount / 2;
-                        if ((isRedZone && toggle) || (!isRedZone && !toggle)) {
-                            setLedColor(l, '#ff0044', 20);
-                        } else {
-                            setLedColor(l, '#3b82f6', 20);
-                        }
+                        if ((isRedZone && toggle) || (!isRedZone && !toggle)) setLedColor(l, '#ff0044', 25);
+                        else setLedColor(l, '#0066ff', 25);
                     });
                 }, 80);
             }
@@ -718,7 +661,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         function triggerBuzzer() {
             const status = document.getElementById('status-text');
             status.innerText = "> Executing: playBeep(1000Hz, 150ms)";
-            // 外壳轻微震动模拟
             strip.style.transform = "scale(1.02)";
             setTimeout(() => strip.style.transform = "scale(0.98)", 50);
             setTimeout(() => strip.style.transform = "scale(1.01)", 100);
