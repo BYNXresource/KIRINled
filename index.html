@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIRIN | STM32 LED Driver V3</title>
+    <title>KIRIN V3 | Advanced STM32 LED Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -18,12 +18,13 @@
             --text-main: #ededed;
             --text-muted: #a1a1aa;
             
-            /* 霓虹渐变 */
+            /* V3 霓虹渐变 */
             --accent-cyan: #00f0ff;
             --accent-violet: #8a2be2;
             --accent-pink: #ff007f;
             --alert-orange: #ff5e00;
             --alert-yellow: #facc15;
+            --v3-green: #00ff66;
             
             /* 丝滑过渡 */
             --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -41,7 +42,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- 1. 物理质感层：噪点与动态网格 --- */
+        /* --- 物理质感层：噪点与动态网格 --- */
         .noise-bg {
             position: fixed; inset: 0; z-index: 9999;
             pointer-events: none; opacity: 0.04;
@@ -58,7 +59,7 @@
             -webkit-mask-image: radial-gradient(ellipse at top, black 20%, transparent 80%);
         }
 
-        /* --- 2. 弥散光增强 (更深邃的极光效果) --- */
+        /* --- 弥散光增强 --- */
         .ambient-bg {
             position: fixed; inset: 0; z-index: -1;
             overflow: hidden; background: transparent;
@@ -69,8 +70,8 @@
             opacity: 0.4;
         }
         .blob-1 { top: -20%; left: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--accent-violet) 0%, transparent 70%); }
-        .blob-2 { bottom: -30%; right: -20%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%); animation-delay: -5s; }
-        .blob-3 { top: 30%; left: 40%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--accent-pink) 0%, transparent 70%); opacity: 0.2; animation-delay: -12s; }
+        .blob-2 { bottom: -30%; right: -20%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--v3-green) 0%, transparent 70%); animation-delay: -5s; }
+        .blob-3 { top: 30%; left: 40%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%); opacity: 0.2; animation-delay: -12s; }
 
         @keyframes float {
             0% { transform: translate(0, 0) scale(1) rotate(0deg); }
@@ -108,15 +109,15 @@
 
         .version-badge {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 6px 16px; background: rgba(0, 240, 255, 0.05);
-            border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 99px;
+            padding: 6px 16px; background: rgba(0, 255, 102, 0.05);
+            border: 1px solid rgba(0, 255, 102, 0.2); border-radius: 99px;
             font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;
-            color: var(--accent-cyan); margin-bottom: 30px;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+            color: var(--v3-green); margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.1);
         }
         .version-badge .dot {
-            width: 6px; height: 6px; background: var(--accent-cyan);
-            border-radius: 50%; box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
+            width: 6px; height: 6px; background: var(--v3-green);
+            border-radius: 50%; box-shadow: 0 0 10px var(--v3-green), 0 0 20px var(--v3-green);
             animation: pulse 2s infinite;
         }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
@@ -130,10 +131,10 @@
         }
 
         .subtitle {
-            font-size: 1.15rem; color: var(--text-muted); max-width: 700px;
+            font-size: 1.15rem; color: var(--text-muted); max-width: 650px;
             margin-bottom: 50px; line-height: 1.7; font-weight: 400;
         }
-        .subtitle strong { color: var(--accent-cyan); font-weight: 600; }
+        .subtitle span { color: #fff; font-weight: 500; }
 
         /* --- 极客风按钮 --- */
         .cta-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
@@ -169,39 +170,6 @@
             transform: translateY(-3px);
         }
 
-        /* --- 警告提示区 (优化卡片光影) --- */
-        .notices-section {
-            max-width: 900px; margin: 0 auto 100px auto; padding: 0 20px;
-            display: flex; flex-direction: column; gap: 20px; z-index: 10;
-        }
-
-        .alert-card {
-            background: rgba(15, 15, 17, 0.4); backdrop-filter: blur(16px);
-            border-radius: 16px; padding: 24px; border: 1px solid var(--border-subtle);
-            border-left: 4px solid; display: flex; flex-direction: column; gap: 12px;
-            transition: var(--transition-smooth); position: relative; overflow: hidden;
-        }
-        .alert-card::after {
-            content: ''; position: absolute; top: 0; right: 0; width: 300px; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02)); pointer-events: none;
-        }
-        .alert-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); }
-        
-        .alert-card.critical { 
-            border-left-color: var(--alert-orange);
-            background: linear-gradient(90deg, rgba(255, 94, 0, 0.05) 0%, rgba(15,15,17,0.4) 100%);
-        }
-        .alert-card.warning { 
-            border-left-color: var(--alert-yellow);
-            background: linear-gradient(90deg, rgba(250, 204, 21, 0.05) 0%, rgba(15,15,17,0.4) 100%);
-        }
-
-        .alert-title { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px; }
-        .critical .alert-title { color: var(--alert-orange); }
-        .warning .alert-title { color: var(--alert-yellow); }
-        .alert-content p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.7; }
-        .alert-content strong { color: #fff; }
-
         /* --- 交互式 LED 演示区 --- */
         .demo-section { padding: 80px 5%; position: relative; z-index: 10; text-align: center; }
         .section-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px; }
@@ -226,19 +194,19 @@
         .led {
             width: 18px; height: 18px; background-color: #111;
             border-radius: 4px; border: 1px solid #222; position: relative;
-            transition: background-color 0.1s, box-shadow 0.1s;
+            /* 移除 transition 让 JS 动画接管，实现真正的 60fps 丝滑渲染 */
         }
         .led::after {
             content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 8px; height: 8px; background: rgba(255,255,255,0.1);
-            border-radius: 50%; transition: opacity 0.1s, background 0.1s;
+            width: 8px; height: 8px; background: rgba(255,255,255,0.05);
+            border-radius: 50%; transition: opacity 0.1s;
         }
-        .led.active::after { background: #fff; box-shadow: 0 0 10px #fff; }
+        .led.active::after { background: #fff; box-shadow: 0 0 10px #fff; opacity: 1; }
 
-        .control-panel { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+        .control-panel { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; max-width: 1000px; margin: 0 auto; }
         .ctrl-btn {
             background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle);
-            color: var(--text-muted); padding: 14px 24px; border-radius: 12px; cursor: pointer;
+            color: var(--text-muted); padding: 14px 20px; border-radius: 12px; cursor: pointer;
             font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600;
             transition: var(--transition-smooth); backdrop-filter: blur(10px);
         }
@@ -251,11 +219,11 @@
 
         #status-text {
             margin-top: 40px; font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-cyan); font-size: 0.95rem; min-height: 20px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            color: var(--v3-green); font-size: 0.95rem; min-height: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
         }
 
-        /* --- 特性卡片 Grid (V3 新特性) --- */
+        /* --- V3 特性卡片 Grid --- */
         .features {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px; max-width: 1200px; margin: 0 auto; padding: 50px 5% 100px 5%;
@@ -291,30 +259,30 @@
         .card-desc-zh { margin-top: 10px; font-size: 0.85rem !important; color: #71717a !important; }
         
         .code-tag {
-            position: absolute; top: 32px; right: 32px; font-family: 'JetBrains Mono';
-            font-size: 0.75rem; background: rgba(255, 255, 255, 0.05); color: var(--accent-cyan);
-            border: 1px solid rgba(0, 240, 255, 0.2); padding: 4px 12px; border-radius: 99px;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.05);
+            position: absolute; top: 32px; right: 32px; font-family: 'JetBrains Mono'; font-weight: 600;
+            font-size: 0.75rem; background: rgba(255, 255, 255, 0.05); color: #fff;
+            border: 1px solid rgba(255,255,255, 0.2); padding: 4px 12px; border-radius: 99px;
+            box-shadow: 0 0 15px rgba(255,255,255, 0.05);
         }
+        .tag-v3 { color: var(--v3-green); border-color: rgba(0, 255, 102, 0.3); box-shadow: 0 0 15px rgba(0, 255, 102, 0.1); }
 
         /* --- 代码展示区 --- */
         .code-showcase {
-            max-width: 950px; margin: 0 auto 120px auto; background: #09090b;
+            max-width: 850px; margin: 0 auto 120px auto; background: #09090b;
             border-radius: 20px; border: 1px solid var(--border-subtle);
             box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
             overflow: hidden; position: relative; z-index: 10;
         }
         .code-showcase::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(from 180deg at 50% 50%, transparent 0deg, var(--accent-violet) 180deg, transparent 360deg);
-            opacity: 0.15; z-index: -1; animation: spin 10s linear infinite;
+            background: conic-gradient(from 180deg at 50% 50%, transparent 0deg, var(--v3-green) 180deg, transparent 360deg);
+            opacity: 0.1; z-index: -1; animation: spin 10s linear infinite;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .code-header {
             background: rgba(255,255,255,0.03); padding: 16px 24px; display: flex;
-            align-items: center; border-bottom: 1px solid var(--border-subtle);
-            backdrop-filter: blur(10px);
+            align-items: center; border-bottom: 1px solid var(--border-subtle); backdrop-filter: blur(10px);
         }
         .window-controls { display: flex; gap: 8px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); }
@@ -329,7 +297,7 @@
         .k-function { color: #d2a8ff; } 
         .k-type { color: #79c0ff; } 
         .k-string { color: #a5d6ff; } 
-        .k-enum { color: #79c0ff; font-style: italic; }
+        .k-enum { color: #e3b341; }
         .k-comment { color: #8b949e; font-style: italic; }
 
         footer {
@@ -353,7 +321,6 @@
             padding: 40px; position: relative; transform: scale(0.95) translateY(20px); 
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
-            display: flex; flex-direction: column; max-height: 90vh;
         }
         .modal-overlay.active .modal-container { transform: scale(1) translateY(0); }
         .modal-header h2 { font-size: 1.8rem; margin-bottom: 8px; color: #fff; letter-spacing: -0.5px; }
@@ -368,7 +335,7 @@
         .terms-box::-webkit-scrollbar { width: 4px; }
         .terms-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         .agreement-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 0.95rem; color: #fff; margin-bottom: 30px; user-select: none; }
-        .agreement-label input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent-cyan); }
+        .agreement-label input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--v3-green); }
         .modal-footer { display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid var(--border-subtle); padding-top: 24px; }
         #final-download-btn { background: #3f3f46; color: #a1a1aa; pointer-events: none; opacity: 0.5; }
         #final-download-btn.ready { background: #fff; color: #000; pointer-events: auto; opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
@@ -385,30 +352,27 @@
 
     <div class="noise-bg"></div>
     <div class="grid-bg"></div>
-
     <div class="ambient-bg">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+        <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
     </div>
 
     <nav>
         <img src="96507b78b3b3e62f9de351ea397a7a51.png" alt="BYNX" class="logo" onerror="this.style.display='none'">
         <div class="nav-links">
-            <a href="#features">Features</a>
-            <a href="#demo">Simulation</a>
+            <a href="#features">V3 Features</a>
+            <a href="#demo">Hardware Simulator</a>
             <a href="https://github.com/BlueDarkUP" target="_blank">GitHub</a>
         </div>
     </nav>
 
     <section class="hero reveal">
         <div class="version-badge">
-            <span class="dot"></span> Driver v3.0 Available
+            <span class="dot"></span> Driver v3.0 Engine Available
         </div>
-        <h1>STM32 Rendering<br>Engine V3</h1>
+        <h1>STM32 Smart LED<br>V3 Controller</h1>
         <div class="subtitle">
-            A revolutionary hardware-accelerated acoustic-optic feedback module engineered for FTC. <br>
-            <strong>Zero CPU Overhead. Fully Enums Supported. Varargs Ready.</strong>
+            A high-performance acoustic-optic feedback module engineered for FTC robots. <br>
+            <span>Now with advanced rendering engines for breathing, anti-aliased waves, and smart progress bars.</span>
         </div>
         <div class="cta-group">
             <button class="btn btn-primary" onclick="openDownloadModal()">
@@ -416,70 +380,57 @@
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             </button>
             <a href="STM32LedShowcase.java" download class="btn btn-secondary">
-                View OpMode Showcase
+                View V3 Showcase OpMode
             </a>
         </div>
     </section>
 
-    <section class="notices-section">
-        <div class="alert-card critical reveal delay-1">
-            <div class="alert-title">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                Zero Overhead Principle / 零开销原则
-            </div>
-            <div class="alert-content">
-                <p><strong>EN:</strong> V3 firmware handles all animations (Breath, Waves, Fading) autonomously via STM32 DMA. <strong>Send the command ONCE</strong> and let the module render it. Do NOT spam I2C commands in loops.</p>
-                <p><strong>ZH:</strong> V3 固件由单片机 DMA 全权接管亚像素级动画渲染。只需<strong>触发一次指令</strong>，即可实现渐变与流水。严禁在循环中频繁发送指令干扰定位算法。</p>
-            </div>
-        </div>
-    </section>
-
     <section id="demo" class="demo-section reveal">
-        <h2 class="section-title">V3 Engine Simulation</h2>
-        <p class="section-subtitle">Experience the sub-pixel smoothing and smart progress bar directly in your browser.</p>
+        <h2 class="section-title">V3 Engine Hardware Simulation</h2>
+        <p class="section-subtitle">Experience the sub-pixel rendering and non-linear animations right in your browser.</p>
         
         <div class="led-strip-container" id="ledStrip">
             </div>
 
         <div class="control-panel">
-            <button class="ctrl-btn" onclick="setMode('breath')">[ENTB] Cyber Breath</button>
-            <button class="ctrl-btn" onclick="setMode('stripe')">[ENTW2] Smooth Stripe</button>
-            <button class="ctrl-btn" onclick="setMode('progressbar')">[ENTPB] Laser Charge</button>
-            <button class="ctrl-btn" onclick="setMode('strobe')">[ENTST] Police Strobe</button>
-            <button class="ctrl-btn" onclick="setMode('off')">[ENF] Turn OFF</button>
-            <button class="ctrl-btn" onclick="triggerBuzzer()">[BENT] Buzzer</button>
+            <button class="ctrl-btn" onclick="setMode('aa-wave')">pad1.X [Anti-Aliased Wave]</button>
+            <button class="ctrl-btn" onclick="setMode('breath')">pad1.Y [Non-linear Breath]</button>
+            <button class="ctrl-btn" onclick="setMode('auto-progress')">dpad_up [Auto Laser Blast]</button>
+            <button class="ctrl-btn" onclick="setMode('manual-progress')">dpad_down [Add Manual Progress]</button>
+            <button class="ctrl-btn" onclick="setMode('off')">pad1.B [Turn OFF]</button>
+            <button class="ctrl-btn" onclick="triggerBuzzer()">LB/RB [Trigger Beep]</button>
         </div>
-        <div id="status-text">&gt; System initialized. Awaiting V3 Engine commands...</div>
+        <div id="status-text">&gt; STM32 V3 Engine initialized. Awaiting commands...</div>
     </section>
 
     <section id="features" class="features">
         <div class="card reveal">
             <div class="card-icon">🌊</div>
-            <h3>Sub-pixel Anti-Aliased Wave</h3>
-            <p>Support up to 10 colors with customizable width and gaps. Hardware calculated sub-pixel cross-fading.</p>
-            <p class="card-desc-zh">支持最高10种颜色的无缝抗锯齿流动，彻底消除像素顿挫感。</p>
-            <span class="code-tag">ENTW2</span>
+            <h3>Sub-pixel Anti-Aliasing</h3>
+            <p>Mode 6: Smoothly blends colors across physical LEDs to eliminate blocky hard edges.</p>
+            <p class="card-desc-zh">V3 全新引擎：次像素抗锯齿流动波纹，支持多达10色无缝过渡，视觉极其丝滑。</p>
+            <span class="code-tag tag-v3">ENTW2</span>
         </div>
         <div class="card reveal delay-1">
             <div class="card-icon">🫁</div>
-            <h3>Non-linear Breath Engine</h3>
-            <p>Smooth multi-color breathing with custom easing coefficient (A-value) for organic pulsing.</p>
-            <p class="card-desc-zh">非线性多色呼吸算法，支持指数级缓动调节，像生命一样呼吸。</p>
-            <span class="code-tag">ENTB</span>
+            <h3>Non-linear Breath</h3>
+            <p>Mode 5: Employs natural mathematical easing curves for organic breathing animations.</p>
+            <p class="card-desc-zh">内置非线性数学曲线计算，还原最接近真实呼吸感的灯效渐变，支持全局或流动呼吸。</p>
+            <span class="code-tag tag-v3">ENTB</span>
         </div>
         <div class="card reveal delay-2">
             <div class="card-icon">🔋</div>
             <h3>Smart Progress Bar</h3>
-            <p>One-shot trigger for charging animations. Includes auto-fill, hold, and directional erase phases.</p>
-            <p class="card-desc-zh">一键触发全自动蓄力进度条，支持同向擦除与手动逐格累加。</p>
-            <span class="code-tag">ENTPB</span>
+            <p>Mode 7: Fire-and-forget auto animations (Lasers/Charging) or manual grid accumulation.</p>
+            <p class="card-desc-zh">智能进度条模式：单指令触发“充能”或“激光”动画，自动处理填满与消退，释放I2C总线。</p>
+            <span class="code-tag tag-v3">ENTPB</span>
         </div>
         <div class="card reveal">
-            <div class="card-icon">☕</div>
-            <h3>Java Enums & Varargs</h3>
-            <p>The V3 driver provides fully typed enums for directions/fades and elegant varargs for colors.</p>
-            <p class="card-desc-zh">Java 端深度重构，支持枚举传参和可变长颜色参数，告别语法错误。</p>
-            <span class="code-tag">Driver</span>
+            <div class="card-icon">🔊</div>
+            <h3>Acoustic-Optic Sync</h3>
+            <p>Trigger exact frequencies for the onboard buzzer simultaneously with lighting.</p>
+            <p class="card-desc-zh">分配ID即刻待机。声光同步反馈，提供自定义频率的物理蜂鸣器支持。</p>
+            <span class="code-tag">BENT</span>
         </div>
     </section>
 
@@ -488,63 +439,60 @@
             <div class="window-controls">
                 <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
             </div>
-            <div class="file-name">STM32LedModule.java</div>
+            <div class="file-name">STM32LedShowcase.java</div>
         </div>
         <pre>
-<span class="k-comment">// 1. V3 Breath Engine: Global breath across 3 colors with easing=1.5</span>
-led.<span class="k-function">setBreathMode</span>(<span class="k-keyword">true</span>, 100, 1.5, 100, Color.<span class="k-enum">RED</span>, Color.<span class="k-enum">ORANGE</span>, Color.<span class="k-enum">YELLOW</span>);
+<span class="k-comment">// Mode 7A: Auto Smart Progress Bar (Fire and forget!)</span>
+led.<span class="k-function">triggerAutoProgressBar</span>(
+    Color.CYAN, Color.BLACK,
+    <span class="k-type">1.0</span>,                    <span class="k-comment">// 1.0 seconds to fill</span>
+    <span class="k-type">2.0</span>,                    <span class="k-comment">// Acceleration curve (A=2.0)</span>
+    FadeType.<span class="k-enum">DIRECTIONAL_ERASE</span>, 
+    <span class="k-type">0.2</span>, <span class="k-type">0.5</span>,               <span class="k-comment">// Hold 0.2s, then fade out over 0.5s</span>
+    Direction.<span class="k-enum">RIGHT</span>, 
+    <span class="k-type">100</span>                     <span class="k-comment">// Max Brightness</span>
+);
 
-<span class="k-comment">// 2. V3 Anti-Aliased Stripe: Seamless blend moving Right</span>
-<span class="k-comment">// Width: 3.0, Gap: 1.0, Anti-Alias: true, Easing: 2.0</span>
-led.<span class="k-function">setAdvancedStripeWave</span>(3.0, 1.0, Direction.<span class="k-enum">RIGHT</span>, <span class="k-keyword">true</span>, 2.0, 80, 100, 
-    Color.<span class="k-enum">RED</span>, Color.<span class="k-enum">YELLOW</span>, Color.<span class="k-enum">GREEN</span>);
-
-<span class="k-comment">// 3. V3 Auto Progress Bar: Laser Blast</span>
-<span class="k-comment">// Fill over 1.0s (Accel=2.0) -> Hold 0.2s -> Erase Right (FB) over 0.5s</span>
-led.<span class="k-function">triggerAutoProgressBar</span>(Color.<span class="k-enum">CYAN</span>, Color.<span class="k-enum">BLACK</span>, 
-    1.0, 2.0, FadeType.<span class="k-enum">DIRECTIONAL_ERASE</span>, 0.2, 0.5, Direction.<span class="k-enum">RIGHT</span>, 100);</pre>
+<span class="k-comment">// The STM32 renders the complex physics autonomously.</span>
+<span class="k-comment">// I2C Bus remains completely free during animation!</span></pre>
     </section>
 
     <footer>
         <p>MANUFACTURED BY <strong>FTC TEAM 27570</strong> &nbsp;|&nbsp; PUBLISHED BY <strong>BYNX</strong></p>
-        <p style="margin-top: 10px; opacity: 0.4;">Copyright &copy; 2026 KIRIN PROJECT. All Rights Reserved.</p>
+        <p style="margin-top: 10px; opacity: 0.4;">Copyright &copy; 2024-2025 KIRIN PROJECT. All Rights Reserved.</p>
     </footer>
 
-    <!-- 弹窗 -->
     <div class="modal-overlay" id="downloadModal">
         <div class="modal-container">
             <div class="modal-header">
                 <h2>Terms and Conditions</h2>
-                <p>下载 KIRIN V3 驱动程序前，请仔细阅读以下协议与免责声明</p>
+                <p>下载 KIRIN V3 驱动程序前，请仔细阅读以下协议</p>
             </div>
-            
             <div class="terms-box">
                 <h4>1. MIT License (开源许可)</h4>
-                <p>Copyright (c) 2026 BYNX KIRIN Project</p>
-                <pre>Permission is hereby granted, free of charge... (Standard MIT terms apply)</pre>
+                <p>Copyright (c) 2024-2025 BYNX KIRIN Project</p>
+                <pre>Permission is hereby granted, free of charge...</pre>
                 
-                <h4>2. Zero Overhead Usage</h4>
-                <p><strong>EN:</strong> The V3 driver utilizes hardware rendering. Do NOT invoke rendering commands (ENTW2, ENTPB, ENTB) continuously inside a loop. Doing so will crash the I2C bus and disconnect your IMU/Odometry.</p>
+                <h4>2. About V3 Rendering Engine</h4>
+                <p><strong>EN:</strong> The V3 firmware shifts the rendering burden to the STM32 MCU. You can now trigger complex animations (like ENTPB or ENTB) with a single I2C command, drastically saving Control Hub bandwidth.</p>
                 
                 <h4>3. FTC Compliance</h4>
-                <p><strong>EN:</strong> Users are responsible for ensuring light patterns comply with official rules.</p>
+                <p><strong>EN:</strong> Ensure your bright or flashing patterns (e.g., Strobe) comply with the official FTC Game Manual to avoid interference with other robots.</p>
             </div>
-
             <label class="agreement-label">
                 <input type="checkbox" id="agreeCheckbox">
-                <span>我已完全知晓 V3 引擎的「事件驱动」原则，绝不在循环中高频刷新灯光。</span>
+                <span>我已了解 V3 引擎特性，并同意开源协议。</span>
             </label>
-
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeDownloadModal()">Cancel</button>
-                <!-- 更新了下载链接为 STM32LedModule.java -->
-                <a id="final-download-btn" href="STM32LedModule.java" download class="btn btn-primary">Confirm & Download</a>
+                <a id="final-download-btn" href="STM32LedModule.java" download class="btn btn-primary">Download Driver</a>
+                <a id="final-download-btn-2" href="STM32LedShowcase.java" download class="btn btn-secondary" style="pointer-events: none; opacity: 0.5;">Download OpMode</a>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. 滚动揭示动画 ---
+        // 1. 滚动揭示动画
         const revealElements = document.querySelectorAll('.reveal');
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -556,34 +504,39 @@ led.<span class="k-function">triggerAutoProgressBar</span>(Color.<span class="k-
         }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
         revealElements.forEach(el => revealObserver.observe(el));
 
-        // --- 2. 卡片 3D 悬浮光效跟随 ---
+        // 2. 卡片 3D 悬浮光效
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('mousemove', e => {
                 const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                card.style.setProperty('--mouse-x', `${x}px`);
-                card.style.setProperty('--mouse-y', `${y}px`);
+                card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
             });
         });
 
-        // --- 3. 弹窗逻辑 ---
+        // 3. 弹窗逻辑
         const modal = document.getElementById('downloadModal');
         const checkbox = document.getElementById('agreeCheckbox');
-        const downloadBtn = document.getElementById('final-download-btn');
+        const downloadBtn1 = document.getElementById('final-download-btn');
+        const downloadBtn2 = document.getElementById('final-download-btn-2');
 
         function openDownloadModal() { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
         function closeDownloadModal() { modal.classList.remove('active'); document.body.style.overflow = 'auto'; }
         checkbox.addEventListener('change', function() {
-            this.checked ? downloadBtn.classList.add('ready') : downloadBtn.classList.remove('ready');
+            if(this.checked) {
+                downloadBtn1.classList.add('ready');
+                downloadBtn2.style.pointerEvents = 'auto'; downloadBtn2.style.opacity = '1';
+            } else {
+                downloadBtn1.classList.remove('ready');
+                downloadBtn2.style.pointerEvents = 'none'; downloadBtn2.style.opacity = '0.5';
+            }
         });
         modal.addEventListener('click', e => { if (e.target === modal) closeDownloadModal(); });
 
-        // --- 4. LED 模拟逻辑 (适配 V3 特性) ---
+        // --- V3 LED 引擎模拟器 (精确还原 Java 逻辑) ---
         const strip = document.getElementById('ledStrip');
         const ledCount = 16;
-        let animationInterval = null;
-        let animationTimeout = null;
+        let animationFrameId = null;
+        let manualUnits = 0;
 
         for(let i=0; i<ledCount; i++) {
             let led = document.createElement('div');
@@ -592,20 +545,21 @@ led.<span class="k-function">triggerAutoProgressBar</span>(Color.<span class="k-
         }
 
         function clearEffects() {
-            if(animationInterval) clearInterval(animationInterval);
-            if(animationTimeout) clearTimeout(animationTimeout);
+            if(animationFrameId) cancelAnimationFrame(animationFrameId);
             document.querySelectorAll('.led').forEach(l => {
                 l.style.backgroundColor = '#111'; l.style.boxShadow = 'none'; l.classList.remove('active');
             });
         }
 
-        function setLedColor(el, r, g, b, brightness = 1.0) {
-            let br = Math.max(0, Math.min(1, brightness));
-            let color = `rgb(${r*br}, ${g*br}, ${b*br})`;
-            let blur = br * 20 + 5;
-            el.style.backgroundColor = color;
-            el.style.boxShadow = `0 0 ${blur}px ${color}, inset 0 0 5px rgba(255,255,255,${br*0.5})`;
-            if (br > 0.1) el.classList.add('active'); else el.classList.remove('active');
+        function setLedColor(el, r, g, b, brightnessMultiplier = 1) {
+            let actualR = Math.floor(r * brightnessMultiplier);
+            let actualG = Math.floor(g * brightnessMultiplier);
+            let actualB = Math.floor(b * brightnessMultiplier);
+            let col = `rgb(${actualR}, ${actualG}, ${actualB})`;
+            el.style.backgroundColor = col;
+            el.style.boxShadow = `0 0 ${20 * brightnessMultiplier}px ${col}, inset 0 0 5px rgba(255,255,255,0.3)`;
+            if(brightnessMultiplier > 0.1) el.classList.add('active');
+            else el.classList.remove('active');
         }
 
         function setMode(mode) {
@@ -613,114 +567,122 @@ led.<span class="k-function">triggerAutoProgressBar</span>(Color.<span class="k-
             const status = document.getElementById('status-text');
 
             if (mode === 'off') {
-                status.innerText = "> Executing: turnOff() - Standby Mode";
+                status.innerText = "> Executing: turnOff() - Standby";
+                manualUnits = 0;
             } 
-            else if (mode === 'strobe') {
-                status.innerText = "> Executing: setStrobeMode(Red, Blue, Fast)";
-                let toggle = false;
-                animationInterval = setInterval(() => {
-                    toggle = !toggle;
-                    document.querySelectorAll('.led').forEach((l, index) => {
-                        let isRedZone = index < ledCount / 2;
-                        if ((isRedZone && toggle) || (!isRedZone && !toggle)) setLedColor(l, 255, 0, 68, 1);
-                        else setLedColor(l, 0, 102, 255, 1);
-                    });
-                }, 80);
-            }
             else if (mode === 'breath') {
-                // 模拟 ENTB: 非线性多色呼吸 (紫 -> 青)
-                status.innerText = "> Executing: setBreathMode(true, 150, 2.0, 100, PURPLE, CYAN)";
-                let tick = 0;
-                animationInterval = setInterval(() => {
-                    tick += 0.05;
-                    // 模拟 A=2.0 的缓动曲线
-                    let rawPulse = (Math.sin(tick) + 1) / 2;
-                    let pulse = Math.pow(rawPulse, 2.0); 
+                status.innerText = "> Mode 5: setBreathMode(Purple, Cyan) - Non-linear Easing";
+                let startTime = performance.now();
+                function renderBreath() {
+                    let elapsed = (performance.now() - startTime) / 1000;
+                    // V3 Non-linear easing logic (sin^2 curve for natural breath)
+                    let val = Math.pow(Math.sin(elapsed * 1.5), 2); 
                     
-                    // 颜色交叉渐变
-                    let r = 138 * (1-pulse) + 0 * pulse;
-                    let g = 43 * (1-pulse)  + 240 * pulse;
-                    let b = 226 * (1-pulse) + 255 * pulse;
-                    
-                    document.querySelectorAll('.led').forEach(l => {
-                        setLedColor(l, r, g, b, pulse * 0.8 + 0.2);
+                    document.querySelectorAll('.led').forEach((l, i) => {
+                        // Flowing gradient effect across index
+                        let phase = (i / ledCount) * Math.PI + elapsed * 2;
+                        let mix = (Math.sin(phase) + 1) / 2;
+                        
+                        // Purple (128,0,128) to Cyan (0,255,255)
+                        let r = 128 + (0 - 128) * mix;
+                        let g = 0 + (255 - 0) * mix;
+                        let b = 128 + (255 - 128) * mix;
+                        
+                        setLedColor(l, r, g, b, val * 0.8 + 0.1);
                     });
-                }, 30);
+                    animationFrameId = requestAnimationFrame(renderBreath);
+                }
+                renderBreath();
             }
-            else if (mode === 'stripe') {
-                // 模拟 ENTW2: 亚像素抗锯齿流水 (Traffic Light)
-                status.innerText = "> Executing: setAdvancedStripeWave(3.0, 1.0, RIGHT, true, 2.0, ...)";
-                let offset = 0;
-                const colors = [[255,0,0], [255,255,0], [0,255,0]];
-                
-                animationInterval = setInterval(() => {
-                    offset += 0.2;
-                    document.querySelectorAll('.led').forEach((l, index) => {
-                        // 模拟亚像素正弦波融合算法
-                        let pos = (index - offset + ledCount) % ledCount;
-                        let section = (pos / ledCount) * colors.length;
-                        let idx1 = Math.floor(section);
-                        let idx2 = (idx1 + 1) % colors.length;
-                        let blend = section - idx1;
-                        
-                        // 模拟 A=2.0 缓动交叉
-                        blend = (Math.sin(blend * Math.PI - Math.PI/2) + 1) / 2;
-                        
-                        let r = colors[idx1][0]*(1-blend) + colors[idx2][0]*blend;
-                        let g = colors[idx1][1]*(1-blend) + colors[idx2][1]*blend;
-                        let b = colors[idx1][2]*(1-blend) + colors[idx2][2]*blend;
-                        
-                        // 模拟间隙变暗
-                        let brightness = Math.pow(Math.sin(section * Math.PI), 1.5);
-                        
-                        setLedColor(l, r, g, b, brightness);
-                    });
-                }, 30);
-            }
-            else if (mode === 'progressbar') {
-                // 模拟 ENTPB: 蓄力、保持、擦除
-                status.innerText = "> Executing: triggerAutoProgressBar(CYAN, BLACK, 1.0, 2.0, FB, ...)";
-                
-                let fillPhase = 0; // 0: fill, 1: hold, 2: erase
-                let progress = 0;
-                let lastTime = Date.now();
-                
-                animationInterval = setInterval(() => {
-                    let now = Date.now();
-                    let dt = (now - lastTime) / 1000.0;
-                    lastTime = now;
+            else if (mode === 'aa-wave') {
+                status.innerText = "> Mode 6: setAdvancedStripeWave(Red, Yellow, Green) - Anti-Aliased";
+                let startTime = performance.now();
+                function renderAAWave() {
+                    let elapsed = (performance.now() - startTime) / 1000;
+                    let speed = 4; // LEDs per second
+                    let offset = elapsed * speed;
 
-                    if (fillPhase === 0) {
-                        progress += dt / 1.0; // 1秒充满
-                        if (progress >= 1.0) { progress = 1.0; fillPhase = 1; setTimeout(() => fillPhase = 2, 200); }
-                    } else if (fillPhase === 2) {
-                        progress += dt / 0.5; // 0.5秒擦除
-                        if (progress >= 2.0) { progress = 2.0; clearInterval(animationInterval); }
-                    }
-
-                    document.querySelectorAll('.led').forEach((l, index) => {
-                        let ledPos = index / (ledCount - 1);
-                        let br = 0;
+                    document.querySelectorAll('.led').forEach((l, i) => {
+                        // Smooth sub-pixel blending mathematical model
+                        let pos = (i - offset) % 15;
+                        if(pos < 0) pos += 15;
                         
-                        if (fillPhase === 0 || fillPhase === 1) {
-                            // 模拟 A=2.0 蓄力加速
-                            let accelProg = Math.pow(progress, 2.0);
-                            br = ledPos <= accelProg ? 1.0 : 0;
-                        } else if (fillPhase === 2) {
-                            // 同向擦除
-                            let eraseProg = (progress - 1.0);
-                            br = ledPos > eraseProg ? 1.0 : 0;
+                        let r=0, g=0, b=0, br=0;
+                        if(pos < 5) { // Red
+                            r = 255; br = Math.sin((pos/5)*Math.PI);
+                        } else if(pos < 10) { // Yellow
+                            r = 255; g = 255; br = Math.sin(((pos-5)/5)*Math.PI);
+                        } else { // Green
+                            g = 255; br = Math.sin(((pos-10)/5)*Math.PI);
                         }
-                        
-                        setLedColor(l, 0, 240, 255, br);
+                        // Anti-alias easing curve
+                        br = Math.pow(br, 1.5); 
+                        setLedColor(l, r, g, b, br);
                     });
-                }, 30);
+                    animationFrameId = requestAnimationFrame(renderAAWave);
+                }
+                renderAAWave();
+            }
+            else if (mode === 'auto-progress') {
+                status.innerText = "> Mode 7A: triggerAutoProgressBar() - Auto Fire Engine";
+                let startTime = performance.now();
+                let fillTime = 1.0; let holdTime = 0.2; let fadeTime = 0.5;
+                
+                function renderAutoPB() {
+                    let elapsed = (performance.now() - startTime) / 1000;
+                    
+                    document.querySelectorAll('.led').forEach((l, i) => {
+                        let ledPos = i / ledCount; // 0.0 to 1.0
+                        
+                        if (elapsed < fillTime) {
+                            // Acceleration A=2.0 (quadratic fill)
+                            let progress = Math.pow(elapsed / fillTime, 2);
+                            if (ledPos < progress) setLedColor(l, 0, 240, 255, 1); // Cyan
+                            else setLedColor(l, 0, 0, 0, 0);
+                        } 
+                        else if (elapsed < fillTime + holdTime) {
+                            // Hold 100%
+                            setLedColor(l, 0, 240, 255, 1);
+                        }
+                        else if (elapsed < fillTime + holdTime + fadeTime) {
+                            // Directional Erase (FB)
+                            let fadeProgress = (elapsed - fillTime - holdTime) / fadeTime;
+                            if (ledPos < fadeProgress) setLedColor(l, 0, 0, 0, 0); // Erased
+                            else setLedColor(l, 0, 240, 255, 1);
+                        }
+                        else {
+                            setLedColor(l, 0, 0, 0, 0); // Done
+                        }
+                    });
+
+                    if(elapsed < fillTime + holdTime + fadeTime + 0.1) {
+                        animationFrameId = requestAnimationFrame(renderAutoPB);
+                    } else {
+                        status.innerText = "> Mode 7A: Auto sequence finished. Bus idle.";
+                    }
+                }
+                renderAutoPB();
+            }
+            else if (mode === 'manual-progress') {
+                manualUnits += 3.34;
+                if(manualUnits > 10.5) manualUnits = 0; // reset
+                status.innerText = `> Mode 7B: addManualProgress(Green) - Units: ${manualUnits.toFixed(1)}/10`;
+                
+                let targetRatio = manualUnits / 10;
+                document.querySelectorAll('.led').forEach((l, i) => {
+                    let ledPos = (i + 1) / ledCount;
+                    if (ledPos <= targetRatio) {
+                        setLedColor(l, 0, 255, 0, 1); // Green
+                    } else {
+                        setLedColor(l, 0, 0, 0, 0);
+                    }
+                });
             }
         }
 
         function triggerBuzzer() {
             const status = document.getElementById('status-text');
-            status.innerText = "> Executing: playBeep(2700Hz, 150ms)";
+            status.innerText = "> Executing: beep(2500Hz, 150ms)";
             strip.style.transform = "scale(1.02)";
             setTimeout(() => strip.style.transform = "scale(0.98)", 50);
             setTimeout(() => strip.style.transform = "scale(1.01)", 100);
