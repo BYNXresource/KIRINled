@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIRIN V3 | Advanced STM32 LED Engine</title>
+    <title>KIRIN V3 | Ultimate STM32 LED Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -18,16 +18,13 @@
             --text-main: #ededed;
             --text-muted: #a1a1aa;
             
-            /* V3 霓虹渐变 */
+            /* V3 核心色彩 */
             --accent-cyan: #00f0ff;
             --accent-violet: #8a2be2;
-            --accent-pink: #ff007f;
-            --alert-orange: #ff5e00;
-            --alert-yellow: #facc15;
             --v3-green: #00ff66;
+            --v3-glow: rgba(0, 255, 102, 0.15);
             
-            /* 丝滑过渡 */
-            --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,307 +42,186 @@
         /* --- 物理质感层：噪点与动态网格 --- */
         .noise-bg {
             position: fixed; inset: 0; z-index: 9999;
-            pointer-events: none; opacity: 0.04;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none; opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
         
         .grid-bg {
             position: fixed; inset: 0; z-index: -2;
-            background-size: 50px 50px;
+            background-size: 40px 40px;
             background-image: 
                 linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
-            mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
-            -webkit-mask-image: radial-gradient(ellipse at top, black 20%, transparent 80%);
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 85%);
+            -webkit-mask-image: radial-gradient(ellipse at top, black 20%, transparent 85%);
         }
 
         /* --- 弥散光增强 --- */
-        .ambient-bg {
-            position: fixed; inset: 0; z-index: -1;
-            overflow: hidden; background: transparent;
-        }
+        .ambient-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
         .blob {
-            position: absolute; filter: blur(120px); border-radius: 50%;
-            animation: float 25s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0.4;
+            position: absolute; filter: blur(140px); border-radius: 50%;
+            animation: float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.35;
         }
-        .blob-1 { top: -20%; left: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--accent-violet) 0%, transparent 70%); }
-        .blob-2 { bottom: -30%; right: -20%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--v3-green) 0%, transparent 70%); animation-delay: -5s; }
-        .blob-3 { top: 30%; left: 40%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%); opacity: 0.2; animation-delay: -12s; }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--accent-violet); }
+        .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--v3-green); animation-delay: -5s; }
 
         @keyframes float {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-            100% { transform: translate(5%, 10%) scale(1.15) rotate(15deg); }
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(8%, 12%) scale(1.1); }
         }
 
         /* --- 导航栏 --- */
         nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 6%; background: rgba(0, 0, 0, 0.4);
+            padding: 20px 5%; background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             position: sticky; top: 0; z-index: 100;
             border-bottom: 1px solid var(--border-subtle);
         }
-        .logo { height: 32px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
+        .logo { height: 28px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
         .nav-links a {
-            color: var(--text-muted); text-decoration: none; margin-left: 36px;
+            color: var(--text-muted); text-decoration: none; margin-left: 40px;
             font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px;
             transition: var(--transition-smooth);
         }
-        .nav-links a:hover { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .nav-links a:hover { color: #fff; }
 
-        /* --- 滚动揭示动画类 --- */
-        .reveal { opacity: 0; transform: translateY(40px) scale(0.98); transition: var(--transition-smooth); }
-        .reveal.active { opacity: 1; transform: translateY(0) scale(1); }
-        .delay-1 { transition-delay: 0.1s; }
-        .delay-2 { transition-delay: 0.2s; }
+        /* --- 滚动揭示动画 --- */
+        .reveal { opacity: 0; transform: translateY(30px); transition: var(--transition-smooth); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
 
-        /* --- 主视觉区域 (Hero) --- */
+        /* --- 主视觉区域 --- */
         .hero {
-            min-height: 85vh; display: flex; flex-direction: column;
+            min-height: 80vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
-            padding: 60px 20px; position: relative;
+            padding: 60px 20px;
         }
-
         .version-badge {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 6px 16px; background: rgba(0, 255, 102, 0.05);
             border: 1px solid rgba(0, 255, 102, 0.2); border-radius: 99px;
-            font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;
-            color: var(--v3-green); margin-bottom: 30px;
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.1);
+            font-size: 0.8rem; font-weight: 600; color: var(--v3-green);
+            margin-bottom: 24px; box-shadow: 0 0 20px var(--v3-glow);
         }
         .version-badge .dot {
-            width: 6px; height: 6px; background: var(--v3-green);
-            border-radius: 50%; box-shadow: 0 0 10px var(--v3-green), 0 0 20px var(--v3-green);
-            animation: pulse 2s infinite;
+            width: 6px; height: 6px; background: var(--v3-green); border-radius: 50%;
+            box-shadow: 0 0 10px var(--v3-green); animation: pulse 2s infinite;
         }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         h1 {
-            font-size: clamp(3.5rem, 8vw, 7.5rem); font-weight: 800;
-            letter-spacing: -0.05em; line-height: 1.05;
-            background: linear-gradient(180deg, #ffffff 0%, #71717a 100%);
+            font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 800;
+            letter-spacing: -0.04em; line-height: 1.05;
+            background: linear-gradient(180deg, #ffffff 0%, #888 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 24px; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+            margin-bottom: 24px;
         }
-
         .subtitle {
-            font-size: 1.15rem; color: var(--text-muted); max-width: 650px;
-            margin-bottom: 50px; line-height: 1.7; font-weight: 400;
+            font-size: 1.1rem; color: var(--text-muted); max-width: 650px;
+            margin-bottom: 40px; line-height: 1.7;
         }
         .subtitle span { color: #fff; font-weight: 500; }
 
-        /* --- 极客风按钮 --- */
-        .cta-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-        
         .btn {
             padding: 14px 32px; border-radius: 99px; font-weight: 600; font-size: 0.95rem;
             text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
-            cursor: pointer; border: none; position: relative; overflow: hidden;
-            transition: var(--transition-smooth);
+            cursor: pointer; border: none; transition: var(--transition-smooth);
         }
-
         .btn-primary {
             background: #fff; color: #000;
             box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 10px 30px rgba(255,255,255,0.15);
         }
-        .btn-primary::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
-            transition: all 0.5s ease;
-        }
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 15px 40px rgba(255,255,255,0.3);
-        }
-        .btn-primary:hover::before { left: 100%; }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.03); color: #fff;
-            border: 1px solid var(--border-subtle); backdrop-filter: blur(10px);
-        }
-        .btn-secondary:hover { 
-            background: rgba(255, 255, 255, 0.08); border-color: var(--border-hover);
-            transform: translateY(-3px);
-        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 15px 40px rgba(255,255,255,0.3); }
 
         /* --- 交互式 LED 演示区 --- */
-        .demo-section { padding: 80px 5%; position: relative; z-index: 10; text-align: center; }
-        .section-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px; }
-        .section-subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.05rem; }
+        .demo-section { padding: 60px 5%; position: relative; z-index: 10; text-align: center; max-width: 1400px; margin: 0 auto; }
+        .section-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
+        .section-subtitle { color: var(--text-muted); margin-bottom: 50px; font-size: 1rem; }
 
         .led-strip-container {
-            width: 100%; max-width: 850px; height: 64px;
+            width: 100%; max-width: 900px; height: 60px;
             background: #09090b; 
             background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .03) 25%, rgba(255, 255, 255, .03) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .03) 75%, rgba(255, 255, 255, .03) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .03) 25%, rgba(255, 255, 255, .03) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .03) 75%, rgba(255, 255, 255, .03) 76%, transparent 77%, transparent);
             background-size: 20px 20px;
-            margin: 0 auto 50px auto; border-radius: 8px;
+            margin: 0 auto 40px auto; border-radius: 8px;
             border: 2px solid #1f1f22; border-bottom-color: #333;
-            box-shadow: inset 0 5px 20px rgba(0,0,0,0.9), 0 30px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+            box-shadow: inset 0 5px 20px rgba(0,0,0,0.9), 0 30px 60px rgba(0,0,0,0.6);
             display: flex; align-items: center; justify-content: space-evenly;
-            padding: 0 20px; position: relative;
-        }
-        .led-strip-container::before, .led-strip-container::after {
-            content: ''; width: 12px; height: 12px; background: #000;
-            border-radius: 50%; border: 2px solid #3f3f46; box-shadow: inset 0 2px 4px rgba(0,0,0,1);
+            padding: 0 15px; position: relative;
         }
 
         .led {
-            width: 18px; height: 18px; background-color: #111;
+            width: 16px; height: 16px; background-color: #111;
             border-radius: 4px; border: 1px solid #222; position: relative;
-            /* 移除 transition 让 JS 动画接管，实现真正的 60fps 丝滑渲染 */
         }
         .led::after {
             content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 8px; height: 8px; background: rgba(255,255,255,0.05);
+            width: 6px; height: 6px; background: rgba(255,255,255,0.05);
             border-radius: 50%; transition: opacity 0.1s;
         }
-        .led.active::after { background: #fff; box-shadow: 0 0 10px #fff; opacity: 1; }
+        .led.active::after { background: #fff; box-shadow: 0 0 8px #fff; opacity: 1; }
 
-        .control-panel { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; max-width: 1000px; margin: 0 auto; }
+        /* 控制面板矩阵分组 */
+        .controls-matrix {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; text-align: left;
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle);
+            padding: 30px; border-radius: 20px; backdrop-filter: blur(20px);
+        }
+        @media (max-width: 900px) { .controls-matrix { grid-template-columns: 1fr; } }
+        
+        .control-group h4 {
+            color: #fff; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;
+            margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .control-group h4 span { font-size: 0.7rem; color: var(--v3-green); background: var(--v3-glow); padding: 2px 8px; border-radius: 99px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+
         .ctrl-btn {
-            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle);
-            color: var(--text-muted); padding: 14px 20px; border-radius: 12px; cursor: pointer;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600;
-            transition: var(--transition-smooth); backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-subtle);
+            color: var(--text-muted); padding: 12px 16px; border-radius: 8px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500;
+            transition: var(--transition-smooth); text-align: left;
+            display: flex; flex-direction: column; gap: 4px;
         }
-        .ctrl-btn:hover { 
-            border-color: rgba(255,255,255,0.3); color: #fff;
-            background: rgba(255, 255, 255, 0.08); transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-        .ctrl-btn:active { transform: translateY(0) scale(0.98); }
+        .ctrl-btn span { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #555; }
+        .ctrl-btn:hover { border-color: rgba(255,255,255,0.2); color: #fff; background: rgba(255,255,255,0.05); }
+        .ctrl-btn.active-btn { border-color: var(--v3-green); background: var(--v3-glow); color: #fff; }
+        .ctrl-btn.active-btn span { color: var(--v3-green); }
 
         #status-text {
-            margin-top: 40px; font-family: 'JetBrains Mono', monospace;
-            color: var(--v3-green); font-size: 0.95rem; min-height: 20px;
-            text-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+            margin-top: 30px; font-family: 'JetBrains Mono', monospace;
+            color: var(--v3-green); font-size: 0.95rem; text-shadow: 0 0 10px var(--v3-glow);
+            background: #000; display: inline-block; padding: 10px 24px; border-radius: 8px; border: 1px solid #222;
         }
 
-        /* --- V3 特性卡片 Grid --- */
+        /* --- 全量特性卡片 Grid --- */
         .features {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px; max-width: 1200px; margin: 0 auto; padding: 50px 5% 100px 5%;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px; max-width: 1400px; margin: 0 auto; padding: 50px 5% 100px 5%;
         }
 
         .card {
             background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid var(--border-subtle); padding: 40px 32px; border-radius: 24px;
-            backdrop-filter: blur(20px); transition: var(--transition-smooth);
-            position: relative; overflow: hidden;
+            border: 1px solid var(--border-subtle); padding: 36px 30px; border-radius: 20px;
+            backdrop-filter: blur(20px); transition: var(--transition-smooth); position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
         }
-        .card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            opacity: 0.3; transition: opacity 0.3s;
-        }
-        .card::after {
-            content: ''; position: absolute; inset: 0;
-            background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06), transparent 40%);
-            opacity: 0; transition: opacity 0.5s; pointer-events: none;
-        }
-        .card:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.15); box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
-        .card:hover::before, .card:hover::after { opacity: 1; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); opacity: 0.1; }
+        .card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         
-        .card-icon {
-            width: 54px; height: 54px; background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-subtle); border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; margin-bottom: 24px; box-shadow: inset 0 2px 10px rgba(255,255,255,0.02);
-        }
-        .card h3 { font-size: 1.35rem; margin-bottom: 12px; color: #fff; font-weight: 700; letter-spacing: -0.5px; }
-        .card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
-        .card-desc-zh { margin-top: 10px; font-size: 0.85rem !important; color: #71717a !important; }
-        
-        .code-tag {
-            position: absolute; top: 32px; right: 32px; font-family: 'JetBrains Mono'; font-weight: 600;
-            font-size: 0.75rem; background: rgba(255, 255, 255, 0.05); color: #fff;
-            border: 1px solid rgba(255,255,255, 0.2); padding: 4px 12px; border-radius: 99px;
-            box-shadow: 0 0 15px rgba(255,255,255, 0.05);
-        }
-        .tag-v3 { color: var(--v3-green); border-color: rgba(0, 255, 102, 0.3); box-shadow: 0 0 15px rgba(0, 255, 102, 0.1); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .card-icon { font-size: 1.8rem; background: rgba(255,255,255,0.05); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-subtle); }
+        .code-tag { font-family: 'JetBrains Mono'; font-size: 0.75rem; font-weight: 600; background: rgba(255,255,255,0.05); color: #fff; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
+        .tag-v3 { color: var(--v3-green); border-color: rgba(0,255,102,0.3); background: var(--v3-glow); }
 
-        /* --- 代码展示区 --- */
-        .code-showcase {
-            max-width: 850px; margin: 0 auto 120px auto; background: #09090b;
-            border-radius: 20px; border: 1px solid var(--border-subtle);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
-            overflow: hidden; position: relative; z-index: 10;
-        }
-        .code-showcase::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(from 180deg at 50% 50%, transparent 0deg, var(--v3-green) 180deg, transparent 360deg);
-            opacity: 0.1; z-index: -1; animation: spin 10s linear infinite;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .card h3 { font-size: 1.25rem; margin-bottom: 10px; color: #fff; font-weight: 700; letter-spacing: -0.5px; }
+        .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; }
+        .card-desc-zh { font-size: 0.85rem !important; color: #71717a !important; margin-bottom: 0 !important; border-top: 1px dashed var(--border-subtle); padding-top: 12px; margin-top: auto; }
 
-        .code-header {
-            background: rgba(255,255,255,0.03); padding: 16px 24px; display: flex;
-            align-items: center; border-bottom: 1px solid var(--border-subtle); backdrop-filter: blur(10px);
-        }
-        .window-controls { display: flex; gap: 8px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); }
-        .red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
-        .file-name { margin: 0 auto; color: var(--text-muted); font-size: 0.85rem; font-family: 'JetBrains Mono'; font-weight: 500; transform: translateX(-30px); }
-        
-        .code-showcase pre {
-            padding: 40px; overflow-x: auto; color: #e4e4e7; background: rgba(0,0,0,0.6);
-            font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.8; margin: 0;
-        }
-        .k-keyword { color: #ff7b72; } 
-        .k-function { color: #d2a8ff; } 
-        .k-type { color: #79c0ff; } 
-        .k-string { color: #a5d6ff; } 
-        .k-enum { color: #e3b341; }
-        .k-comment { color: #8b949e; font-style: italic; }
-
-        footer {
-            text-align: center; padding: 60px 20px; color: var(--text-muted);
-            font-size: 0.85rem; border-top: 1px solid var(--border-subtle);
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
-        }
-        footer strong { color: #fff; font-weight: 600; }
-
-        /* --- 弹窗样式 --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(16px);
-            z-index: 1000; display: none; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.4s ease;
-        }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-container {
-            background: #09090b; width: 90%; max-width: 700px;
-            border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-            padding: 40px; position: relative; transform: scale(0.95) translateY(20px); 
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
-        }
-        .modal-overlay.active .modal-container { transform: scale(1) translateY(0); }
-        .modal-header h2 { font-size: 1.8rem; margin-bottom: 8px; color: #fff; letter-spacing: -0.5px; }
-        .modal-header p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
-        .terms-box {
-            background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle);
-            border-radius: 16px; height: 320px; overflow-y: auto; padding: 24px;
-            font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px;
-        }
-        .terms-box h4 { color: #fff; margin: 20px 0 8px 0; font-size: 1rem; }
-        .terms-box pre { background: rgba(0,0,0,0.5); padding: 16px; border-radius: 8px; white-space: pre-wrap; font-family: 'JetBrains Mono'; font-size: 0.8rem; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        .terms-box::-webkit-scrollbar { width: 4px; }
-        .terms-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        .agreement-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 0.95rem; color: #fff; margin-bottom: 30px; user-select: none; }
-        .agreement-label input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--v3-green); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid var(--border-subtle); padding-top: 24px; }
-        #final-download-btn { background: #3f3f46; color: #a1a1aa; pointer-events: none; opacity: 0.5; }
-        #final-download-btn.ready { background: #fff; color: #000; pointer-events: auto; opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 3rem; }
-            .led-strip-container { height: 50px; padding: 0 10px; }
-            .led { width: 14px; height: 14px; }
-            .card { padding: 30px 20px; }
-        }
+        footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-subtle); background: rgba(0,0,0,0.8); }
+        footer strong { color: #fff; }
     </style>
 </head>
 <body>
@@ -353,143 +229,161 @@
     <div class="noise-bg"></div>
     <div class="grid-bg"></div>
     <div class="ambient-bg">
-        <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+        <div class="blob blob-1"></div><div class="blob blob-2"></div>
     </div>
 
     <nav>
-        <img src="96507b78b3b3e62f9de351ea397a7a51.png" alt="BYNX" class="logo" onerror="this.style.display='none'">
+        <div style="font-weight: 800; font-size: 1.2rem; letter-spacing: 2px;">KIRIN <span style="color: var(--v3-green);">V3</span></div>
         <div class="nav-links">
-            <a href="#features">V3 Features</a>
-            <a href="#demo">Hardware Simulator</a>
+            <a href="#demo">Simulator</a>
+            <a href="#features">Full Specs</a>
             <a href="https://github.com/BlueDarkUP" target="_blank">GitHub</a>
         </div>
     </nav>
 
     <section class="hero reveal">
-        <div class="version-badge">
-            <span class="dot"></span> Driver v3.0 Engine Available
-        </div>
-        <h1>STM32 Smart LED<br>V3 Controller</h1>
+        <div class="version-badge"><span class="dot"></span> Firmware V3.0 Deployed</div>
+        <h1>Hardware Rendering<br>Perfected.</h1>
         <div class="subtitle">
-            A high-performance acoustic-optic feedback module engineered for FTC robots. <br>
-            <span>Now with advanced rendering engines for breathing, anti-aliased waves, and smart progress bars.</span>
+            The ultimate acoustic-optic feedback module for FTC. <br>
+            <span>Featuring Sub-pixel Anti-aliasing, Non-linear Math curves, and Autonomous Physics Engines.</span>
         </div>
-        <div class="cta-group">
-            <button class="btn btn-primary" onclick="openDownloadModal()">
-                Download V3 Driver
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            </button>
-            <a href="STM32LedShowcase.java" download class="btn btn-secondary">
-                View V3 Showcase OpMode
-            </a>
-        </div>
+        <a href="#demo" class="btn btn-primary">Launch Simulator</a>
     </section>
 
     <section id="demo" class="demo-section reveal">
-        <h2 class="section-title">V3 Engine Hardware Simulation</h2>
-        <p class="section-subtitle">Experience the sub-pixel rendering and non-linear animations right in your browser.</p>
+        <h2 class="section-title">Full Capability Simulator</h2>
+        <p class="section-subtitle">Experience the exact math models running on the STM32 MCU.</p>
         
-        <div class="led-strip-container" id="ledStrip">
+        <div class="led-strip-container" id="ledStrip"></div>
+
+        <div class="controls-matrix">
+            <div class="control-group">
+                <h4>Legacy & Direct Control <span>V1/V2</span></h4>
+                <div class="btn-grid">
+                    <button class="ctrl-btn" onclick="setMode('solid')">Solid Color <span>setSolidColor()</span></button>
+                    <button class="ctrl-btn" onclick="setMode('pixel')">Individual Pixel <span>setIndividualLed()</span></button>
+                    <button class="ctrl-btn" onclick="setMode('wave-classic')">Classic Wave <span>setWaveMode()</span></button>
+                    <button class="ctrl-btn" onclick="setMode('strobe')">Police Strobe <span>setStrobeMode()</span></button>
+                    <button class="ctrl-btn" onclick="triggerBuzzer()">Trigger Beep <span>beep(2000, 150)</span></button>
+                    <button class="ctrl-btn" onclick="setMode('off')">Turn Off <span>turnOff()</span></button>
+                </div>
             </div>
 
-        <div class="control-panel">
-            <button class="ctrl-btn" onclick="setMode('aa-wave')">pad1.X [Anti-Aliased Wave]</button>
-            <button class="ctrl-btn" onclick="setMode('breath')">pad1.Y [Non-linear Breath]</button>
-            <button class="ctrl-btn" onclick="setMode('auto-progress')">dpad_up [Auto Laser Blast]</button>
-            <button class="ctrl-btn" onclick="setMode('manual-progress')">dpad_down [Add Manual Progress]</button>
-            <button class="ctrl-btn" onclick="setMode('off')">pad1.B [Turn OFF]</button>
-            <button class="ctrl-btn" onclick="triggerBuzzer()">LB/RB [Trigger Beep]</button>
+            <div class="control-group">
+                <h4>Advanced Render Engines <span>V3 Exclusive</span></h4>
+                <div class="btn-grid">
+                    <button class="ctrl-btn" onclick="setMode('breath-global')">Global Breath <span>setBreathMode(true)</span></button>
+                    <button class="ctrl-btn" onclick="setMode('breath-flow')">Flowing Gradient <span>setBreathMode(false)</span></button>
+                    <button class="ctrl-btn" onclick="setMode('stripe-hard')">Hard-edge Stripe <span>setAdvancedStripe(false)</span></button>
+                    <button class="ctrl-btn" onclick="setMode('stripe-aa')">Anti-Aliased Wave <span>setAdvancedStripe(true)</span></button>
+                    <button class="ctrl-btn" onclick="setMode('pb-auto')">Auto Laser Blast <span>triggerAutoProgressBar()</span></button>
+                    <button class="ctrl-btn" onclick="setMode('pb-manual')">Manual Accumulate <span>addManualProgress()</span></button>
+                </div>
+            </div>
         </div>
-        <div id="status-text">&gt; STM32 V3 Engine initialized. Awaiting commands...</div>
+        
+        <div id="status-text">&gt; System Boot. Awaiting I2C Commands...</div>
     </section>
 
     <section id="features" class="features">
+        
         <div class="card reveal">
-            <div class="card-icon">🌊</div>
-            <h3>Sub-pixel Anti-Aliasing</h3>
-            <p>Mode 6: Smoothly blends colors across physical LEDs to eliminate blocky hard edges.</p>
-            <p class="card-desc-zh">V3 全新引擎：次像素抗锯齿流动波纹，支持多达10色无缝过渡，视觉极其丝滑。</p>
-            <span class="code-tag tag-v3">ENTW2</span>
-        </div>
-        <div class="card reveal delay-1">
-            <div class="card-icon">🫁</div>
-            <h3>Non-linear Breath</h3>
-            <p>Mode 5: Employs natural mathematical easing curves for organic breathing animations.</p>
-            <p class="card-desc-zh">内置非线性数学曲线计算，还原最接近真实呼吸感的灯效渐变，支持全局或流动呼吸。</p>
-            <span class="code-tag tag-v3">ENTB</span>
-        </div>
-        <div class="card reveal delay-2">
-            <div class="card-icon">🔋</div>
-            <h3>Smart Progress Bar</h3>
-            <p>Mode 7: Fire-and-forget auto animations (Lasers/Charging) or manual grid accumulation.</p>
-            <p class="card-desc-zh">智能进度条模式：单指令触发“充能”或“激光”动画，自动处理填满与消退，释放I2C总线。</p>
-            <span class="code-tag tag-v3">ENTPB</span>
-        </div>
-        <div class="card reveal">
-            <div class="card-icon">🔊</div>
-            <h3>Acoustic-Optic Sync</h3>
-            <p>Trigger exact frequencies for the onboard buzzer simultaneously with lighting.</p>
-            <p class="card-desc-zh">分配ID即刻待机。声光同步反馈，提供自定义频率的物理蜂鸣器支持。</p>
-            <span class="code-tag">BENT</span>
-        </div>
-    </section>
-
-    <section class="code-showcase reveal">
-        <div class="code-header">
-            <div class="window-controls">
-                <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+            <div class="card-header">
+                <div class="card-icon">🌊</div>
+                <span class="code-tag tag-v3">Mode 6: ENTW2</span>
             </div>
-            <div class="file-name">STM32LedShowcase.java</div>
+            <h3>Sub-pixel Anti-Aliasing</h3>
+            <p>Advanced engine smoothly blends up to 10 colors across physical LEDs to eliminate blocky hard edges.</p>
+            <p class="card-desc-zh">次像素抗锯齿引擎，支持最高10色交替流水，通过亚像素插值计算消除物理灯珠间的割裂感。</p>
         </div>
-        <pre>
-<span class="k-comment">// Mode 7A: Auto Smart Progress Bar (Fire and forget!)</span>
-led.<span class="k-function">triggerAutoProgressBar</span>(
-    Color.CYAN, Color.BLACK,
-    <span class="k-type">1.0</span>,                    <span class="k-comment">// 1.0 seconds to fill</span>
-    <span class="k-type">2.0</span>,                    <span class="k-comment">// Acceleration curve (A=2.0)</span>
-    FadeType.<span class="k-enum">DIRECTIONAL_ERASE</span>, 
-    <span class="k-type">0.2</span>, <span class="k-type">0.5</span>,               <span class="k-comment">// Hold 0.2s, then fade out over 0.5s</span>
-    Direction.<span class="k-enum">RIGHT</span>, 
-    <span class="k-type">100</span>                     <span class="k-comment">// Max Brightness</span>
-);
 
-<span class="k-comment">// The STM32 renders the complex physics autonomously.</span>
-<span class="k-comment">// I2C Bus remains completely free during animation!</span></pre>
+        <div class="card reveal">
+            <div class="card-header">
+                <div class="card-icon">🫁</div>
+                <span class="code-tag tag-v3">Mode 5: ENTB</span>
+            </div>
+            <h3>Non-linear Math Breath</h3>
+            <p>Employs natural mathematical easing curves (e.g., Sin²) for organic global or flowing breathing animations.</p>
+            <p class="card-desc-zh">内置非线性数学曲线运算，摒弃生硬的线性渐变，还原最接近自然生理机能的呼吸灯效。</p>
+        </div>
+
+        <div class="card reveal">
+            <div class="card-header">
+                <div class="card-icon">🚀</div>
+                <span class="code-tag tag-v3">Mode 7A: ENTPB</span>
+            </div>
+            <h3>Smart Auto Progress Bar</h3>
+            <p>Fire-and-forget physics animation. Send one command, and the MCU handles acceleration, holding, and erasing autonomously.</p>
+            <p class="card-desc-zh">自动充能进度条：单指令触发极具爆发力的激光填满与自动衰退动画，全程零占用总线。</p>
+        </div>
+
+        <div class="card reveal">
+            <div class="card-header">
+                <div class="card-icon">🔋</div>
+                <span class="code-tag tag-v3">Mode 7B: ENTPB M</span>
+            </div>
+            <h3>Manual Accumulation</h3>
+            <p>Pass floating-point units to build a progress bar smoothly. Perfect for displaying intake telemetry or battery levels.</p>
+            <p class="card-desc-zh">手动进度条累计：传入浮点数值（如搭载的Ring数量），灯环将以平滑动画累加亮起指定格数。</p>
+        </div>
+
+        <div class="card reveal">
+            <div class="card-header">
+                <div class="card-icon">🚥</div>
+                <span class="code-tag">Mode 2: ENTW</span>
+            </div>
+            <h3>Dual-Color Classic Wave</h3>
+            <p>The standard, highly efficient dual-color sine wave for general robotic state feedback.</p>
+            <p class="card-desc-zh">基础版双色正弦波流水灯，性能开销极低，适用于传达常规的机器人状态反馈。</p>
+        </div>
+
+        <div class="card reveal">
+            <div class="card-header">
+                <div class="card-icon">🚨</div>
+                <span class="code-tag">Mode 3: ENTST</span>
+            </div>
+            <h3>High-Frequency Strobe</h3>
+            <p>Splits the strip and alternates colors at high frequencies for urgent visual alerts (e.g., Target Locked).</p>
+            <p class="card-desc-zh">警灯爆闪模式，分组交替高频闪烁，极具视觉冲击力，适合用于“锁定目标”或“时间警告”。</p>
+        </div>
+
+        <div class="card reveal">
+            <div class="card-header">
+                <div class="card-icon">🎯</div>
+                <span class="code-tag">Mode 4: ENAT</span>
+            </div>
+            <h3>Pixel-Perfect Control</h3>
+            <p>Direct memory access to address any individual LED index with a specific HEX color and brightness.</p>
+            <p class="card-desc-zh">像素级单点控制：直接寻址任意一颗物理灯珠并指定其颜色和亮度，适合自定义极客玩法。</p>
+        </div>
+
+        <div class="card reveal">
+            <div class="card-header">
+                <div class="card-icon">🔊</div>
+                <span class="code-tag">Audio: BENT</span>
+            </div>
+            <h3>Acoustic-Optic Sync</h3>
+            <p>Trigger exact frequencies (Hz) and durations (ms) on the onboard buzzer concurrently with light effects.</p>
+            <p class="card-desc-zh">声光同步引擎：向板载蜂鸣器发送精确的频率(Hz)和时长(ms)，实现媲美外设的物理震动反馈。</p>
+        </div>
+
+        <div class="card reveal">
+            <div class="card-header">
+                <div class="card-icon">🆔</div>
+                <span class="code-tag">Boot: ASSIGN</span>
+            </div>
+            <h3>Smart ID Standby</h3>
+            <p>Flashes orange on boot to indicate ready state. Auto-sleeps the moment a logical ID is assigned via I2C.</p>
+            <p class="card-desc-zh">智能上电分配：通电时橙光闪烁等待连接，一旦收到 I2C 的 ID 分配指令即刻进入黑屏待机状态。</p>
+        </div>
+
     </section>
 
     <footer>
         <p>MANUFACTURED BY <strong>FTC TEAM 27570</strong> &nbsp;|&nbsp; PUBLISHED BY <strong>BYNX</strong></p>
         <p style="margin-top: 10px; opacity: 0.4;">Copyright &copy; 2024-2025 KIRIN PROJECT. All Rights Reserved.</p>
     </footer>
-
-    <div class="modal-overlay" id="downloadModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2>Terms and Conditions</h2>
-                <p>下载 KIRIN V3 驱动程序前，请仔细阅读以下协议</p>
-            </div>
-            <div class="terms-box">
-                <h4>1. MIT License (开源许可)</h4>
-                <p>Copyright (c) 2024-2025 BYNX KIRIN Project</p>
-                <pre>Permission is hereby granted, free of charge...</pre>
-                
-                <h4>2. About V3 Rendering Engine</h4>
-                <p><strong>EN:</strong> The V3 firmware shifts the rendering burden to the STM32 MCU. You can now trigger complex animations (like ENTPB or ENTB) with a single I2C command, drastically saving Control Hub bandwidth.</p>
-                
-                <h4>3. FTC Compliance</h4>
-                <p><strong>EN:</strong> Ensure your bright or flashing patterns (e.g., Strobe) comply with the official FTC Game Manual to avoid interference with other robots.</p>
-            </div>
-            <label class="agreement-label">
-                <input type="checkbox" id="agreeCheckbox">
-                <span>我已了解 V3 引擎特性，并同意开源协议。</span>
-            </label>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeDownloadModal()">Cancel</button>
-                <a id="final-download-btn" href="STM32LedModule.java" download class="btn btn-primary">Download Driver</a>
-                <a id="final-download-btn-2" href="STM32LedShowcase.java" download class="btn btn-secondary" style="pointer-events: none; opacity: 0.5;">Download OpMode</a>
-            </div>
-        </div>
-    </div>
 
     <script>
         // 1. 滚动揭示动画
@@ -504,53 +398,30 @@ led.<span class="k-function">triggerAutoProgressBar</span>(
         }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
         revealElements.forEach(el => revealObserver.observe(el));
 
-        // 2. 卡片 3D 悬浮光效
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('mousemove', e => {
-                const rect = card.getBoundingClientRect();
-                card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-                card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-            });
-        });
-
-        // 3. 弹窗逻辑
-        const modal = document.getElementById('downloadModal');
-        const checkbox = document.getElementById('agreeCheckbox');
-        const downloadBtn1 = document.getElementById('final-download-btn');
-        const downloadBtn2 = document.getElementById('final-download-btn-2');
-
-        function openDownloadModal() { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
-        function closeDownloadModal() { modal.classList.remove('active'); document.body.style.overflow = 'auto'; }
-        checkbox.addEventListener('change', function() {
-            if(this.checked) {
-                downloadBtn1.classList.add('ready');
-                downloadBtn2.style.pointerEvents = 'auto'; downloadBtn2.style.opacity = '1';
-            } else {
-                downloadBtn1.classList.remove('ready');
-                downloadBtn2.style.pointerEvents = 'none'; downloadBtn2.style.opacity = '0.5';
-            }
-        });
-        modal.addEventListener('click', e => { if (e.target === modal) closeDownloadModal(); });
-
-        // --- V3 LED 引擎模拟器 (精确还原 Java 逻辑) ---
+        // 2. 模拟器核心逻辑
         const strip = document.getElementById('ledStrip');
+        const statusText = document.getElementById('status-text');
         const ledCount = 16;
         let animationFrameId = null;
         let manualUnits = 0;
 
+        // 生成DOM
         for(let i=0; i<ledCount; i++) {
             let led = document.createElement('div');
             led.className = 'led'; led.id = 'led-' + i;
             strip.appendChild(led);
         }
 
+        // 工具函数：清理状态
         function clearEffects() {
             if(animationFrameId) cancelAnimationFrame(animationFrameId);
             document.querySelectorAll('.led').forEach(l => {
                 l.style.backgroundColor = '#111'; l.style.boxShadow = 'none'; l.classList.remove('active');
             });
+            document.querySelectorAll('.ctrl-btn').forEach(btn => btn.classList.remove('active-btn'));
         }
 
+        // 工具函数：设置单颗LED颜色与亮度
         function setLedColor(el, r, g, b, brightnessMultiplier = 1) {
             let actualR = Math.floor(r * brightnessMultiplier);
             let actualG = Math.floor(g * brightnessMultiplier);
@@ -558,135 +429,180 @@ led.<span class="k-function">triggerAutoProgressBar</span>(
             let col = `rgb(${actualR}, ${actualG}, ${actualB})`;
             el.style.backgroundColor = col;
             el.style.boxShadow = `0 0 ${20 * brightnessMultiplier}px ${col}, inset 0 0 5px rgba(255,255,255,0.3)`;
-            if(brightnessMultiplier > 0.1) el.classList.add('active');
-            else el.classList.remove('active');
+            brightnessMultiplier > 0.1 ? el.classList.add('active') : el.classList.remove('active');
         }
 
+        // 核心控制器
         function setMode(mode) {
             clearEffects();
-            const status = document.getElementById('status-text');
+            event.currentTarget.classList.add('active-btn');
+            const leds = document.querySelectorAll('.led');
+            let startTime = performance.now();
 
-            if (mode === 'off') {
-                status.innerText = "> Executing: turnOff() - Standby";
-                manualUnits = 0;
-            } 
-            else if (mode === 'breath') {
-                status.innerText = "> Mode 5: setBreathMode(Purple, Cyan) - Non-linear Easing";
-                let startTime = performance.now();
-                function renderBreath() {
-                    let elapsed = (performance.now() - startTime) / 1000;
-                    // V3 Non-linear easing logic (sin^2 curve for natural breath)
-                    let val = Math.pow(Math.sin(elapsed * 1.5), 2); 
-                    
-                    document.querySelectorAll('.led').forEach((l, i) => {
-                        // Flowing gradient effect across index
-                        let phase = (i / ledCount) * Math.PI + elapsed * 2;
-                        let mix = (Math.sin(phase) + 1) / 2;
-                        
-                        // Purple (128,0,128) to Cyan (0,255,255)
-                        let r = 128 + (0 - 128) * mix;
-                        let g = 0 + (255 - 0) * mix;
-                        let b = 128 + (255 - 128) * mix;
-                        
-                        setLedColor(l, r, g, b, val * 0.8 + 0.1);
-                    });
-                    animationFrameId = requestAnimationFrame(renderBreath);
-                }
-                renderBreath();
-            }
-            else if (mode === 'aa-wave') {
-                status.innerText = "> Mode 6: setAdvancedStripeWave(Red, Yellow, Green) - Anti-Aliased";
-                let startTime = performance.now();
-                function renderAAWave() {
-                    let elapsed = (performance.now() - startTime) / 1000;
-                    let speed = 4; // LEDs per second
-                    let offset = elapsed * speed;
+            switch(mode) {
+                case 'off':
+                    statusText.innerText = "> Executing: turnOff() - Module in sleep mode.";
+                    manualUnits = 0;
+                    break;
 
-                    document.querySelectorAll('.led').forEach((l, i) => {
-                        // Smooth sub-pixel blending mathematical model
-                        let pos = (i - offset) % 15;
-                        if(pos < 0) pos += 15;
-                        
-                        let r=0, g=0, b=0, br=0;
-                        if(pos < 5) { // Red
-                            r = 255; br = Math.sin((pos/5)*Math.PI);
-                        } else if(pos < 10) { // Yellow
-                            r = 255; g = 255; br = Math.sin(((pos-5)/5)*Math.PI);
-                        } else { // Green
-                            g = 255; br = Math.sin(((pos-10)/5)*Math.PI);
-                        }
-                        // Anti-alias easing curve
-                        br = Math.pow(br, 1.5); 
-                        setLedColor(l, r, g, b, br);
-                    });
-                    animationFrameId = requestAnimationFrame(renderAAWave);
-                }
-                renderAAWave();
-            }
-            else if (mode === 'auto-progress') {
-                status.innerText = "> Mode 7A: triggerAutoProgressBar() - Auto Fire Engine";
-                let startTime = performance.now();
-                let fillTime = 1.0; let holdTime = 0.2; let fadeTime = 0.5;
-                
-                function renderAutoPB() {
-                    let elapsed = (performance.now() - startTime) / 1000;
-                    
-                    document.querySelectorAll('.led').forEach((l, i) => {
-                        let ledPos = i / ledCount; // 0.0 to 1.0
-                        
-                        if (elapsed < fillTime) {
-                            // Acceleration A=2.0 (quadratic fill)
-                            let progress = Math.pow(elapsed / fillTime, 2);
-                            if (ledPos < progress) setLedColor(l, 0, 240, 255, 1); // Cyan
-                            else setLedColor(l, 0, 0, 0, 0);
-                        } 
-                        else if (elapsed < fillTime + holdTime) {
-                            // Hold 100%
-                            setLedColor(l, 0, 240, 255, 1);
-                        }
-                        else if (elapsed < fillTime + holdTime + fadeTime) {
-                            // Directional Erase (FB)
-                            let fadeProgress = (elapsed - fillTime - holdTime) / fadeTime;
-                            if (ledPos < fadeProgress) setLedColor(l, 0, 0, 0, 0); // Erased
-                            else setLedColor(l, 0, 240, 255, 1);
-                        }
-                        else {
-                            setLedColor(l, 0, 0, 0, 0); // Done
-                        }
-                    });
+                case 'solid':
+                    statusText.innerText = "> Mode 1: setSolidColor(0xFF0044) - Full Brightness";
+                    leds.forEach(l => setLedColor(l, 255, 0, 68, 1));
+                    break;
 
-                    if(elapsed < fillTime + holdTime + fadeTime + 0.1) {
-                        animationFrameId = requestAnimationFrame(renderAutoPB);
-                    } else {
-                        status.innerText = "> Mode 7A: Auto sequence finished. Bus idle.";
+                case 'pixel':
+                    statusText.innerText = "> Mode 4: setIndividualLed() - Mapping specific indices";
+                    setLedColor(leds[0], 255, 0, 0, 1);   // LED 1: Red
+                    setLedColor(leds[7], 0, 255, 0, 1);   // LED 8: Green
+                    setLedColor(leds[15], 0, 0, 255, 1);  // LED 16: Blue
+                    break;
+
+                case 'wave-classic':
+                    statusText.innerText = "> Mode 2: setWaveMode(Cyan, Magenta) - Simple Sine Blend";
+                    function renderClassicWave() {
+                        let t = (performance.now() - startTime) / 1000;
+                        leds.forEach((l, i) => {
+                            let mix = (Math.sin(i * 0.5 - t * 5) + 1) / 2;
+                            let r = 0 + (255 - 0) * mix;
+                            let g = 255 + (0 - 255) * mix;
+                            let b = 255 + (255 - 255) * mix;
+                            setLedColor(l, r, g, b, 1);
+                        });
+                        animationFrameId = requestAnimationFrame(renderClassicWave);
                     }
-                }
-                renderAutoPB();
-            }
-            else if (mode === 'manual-progress') {
-                manualUnits += 3.34;
-                if(manualUnits > 10.5) manualUnits = 0; // reset
-                status.innerText = `> Mode 7B: addManualProgress(Green) - Units: ${manualUnits.toFixed(1)}/10`;
-                
-                let targetRatio = manualUnits / 10;
-                document.querySelectorAll('.led').forEach((l, i) => {
-                    let ledPos = (i + 1) / ledCount;
-                    if (ledPos <= targetRatio) {
-                        setLedColor(l, 0, 255, 0, 1); // Green
-                    } else {
-                        setLedColor(l, 0, 0, 0, 0);
+                    renderClassicWave();
+                    break;
+
+                case 'strobe':
+                    statusText.innerText = "> Mode 3: setStrobeMode(Red, Blue) - High Frequency Alt";
+                    function renderStrobe() {
+                        let t = Math.floor((performance.now() - startTime) / 80); // 80ms toggle
+                        let toggle = t % 2 === 0;
+                        leds.forEach((l, i) => {
+                            let isLeft = i < ledCount / 2;
+                            if ((isLeft && toggle) || (!isLeft && !toggle)) setLedColor(l, 255, 0, 0, 1);
+                            else setLedColor(l, 0, 0, 255, 1);
+                        });
+                        animationFrameId = requestAnimationFrame(renderStrobe);
                     }
-                });
+                    renderStrobe();
+                    break;
+
+                case 'breath-global':
+                    statusText.innerText = "> Mode 5: setBreathMode(true, Orange) - Global Sin² Easing";
+                    function renderGlobalBreath() {
+                        let t = (performance.now() - startTime) / 1000;
+                        let val = Math.pow(Math.sin(t * 2), 2); // Non-linear
+                        leds.forEach(l => setLedColor(l, 255, 165, 0, val * 0.9 + 0.1));
+                        animationFrameId = requestAnimationFrame(renderGlobalBreath);
+                    }
+                    renderGlobalBreath();
+                    break;
+
+                case 'breath-flow':
+                    statusText.innerText = "> Mode 5: setBreathMode(false, Purple, Cyan) - Phase Shift Math";
+                    function renderFlowBreath() {
+                        let t = (performance.now() - startTime) / 1000;
+                        let val = Math.pow(Math.sin(t * 1.5), 2);
+                        leds.forEach((l, i) => {
+                            let phase = (i / ledCount) * Math.PI + t * 2;
+                            let mix = (Math.sin(phase) + 1) / 2;
+                            let r = 128 + (0 - 128) * mix;
+                            let g = 0 + (255 - 0) * mix;
+                            let b = 128 + (255 - 128) * mix;
+                            setLedColor(l, r, g, b, val * 0.8 + 0.1);
+                        });
+                        animationFrameId = requestAnimationFrame(renderFlowBreath);
+                    }
+                    renderFlowBreath();
+                    break;
+
+                case 'stripe-hard':
+                    statusText.innerText = "> Mode 6: setAdvancedStripeWave(antiAlias=false) - Blocky Traffic Light";
+                    function renderHardStripe() {
+                        let t = (performance.now() - startTime) / 1000;
+                        let offset = t * 5;
+                        leds.forEach((l, i) => {
+                            let pos = (i - offset) % 15; if(pos < 0) pos += 15;
+                            if(pos < 5) setLedColor(l, 255, 0, 0, 1);
+                            else if(pos < 10) setLedColor(l, 255, 255, 0, 1);
+                            else setLedColor(l, 0, 255, 0, 1);
+                        });
+                        animationFrameId = requestAnimationFrame(renderHardStripe);
+                    }
+                    renderHardStripe();
+                    break;
+
+                case 'stripe-aa':
+                    statusText.innerText = "> Mode 6: setAdvancedStripeWave(antiAlias=true, A=1.5) - Sub-pixel Blending";
+                    function renderAAStripe() {
+                        let t = (performance.now() - startTime) / 1000;
+                        let offset = t * 5;
+                        leds.forEach((l, i) => {
+                            let pos = (i - offset) % 15; if(pos < 0) pos += 15;
+                            let r=0, g=0, b=0, br=0;
+                            if(pos < 5) { r = 255; br = Math.sin((pos/5)*Math.PI); }
+                            else if(pos < 10) { r = 255; g = 255; br = Math.sin(((pos-5)/5)*Math.PI); }
+                            else { g = 255; br = Math.sin(((pos-10)/5)*Math.PI); }
+                            br = Math.pow(br, 1.5); // AA Easing curve
+                            setLedColor(l, r, g, b, br);
+                        });
+                        animationFrameId = requestAnimationFrame(renderAAStripe);
+                    }
+                    renderAAStripe();
+                    break;
+
+                case 'pb-auto':
+                    statusText.innerText = "> Mode 7A: triggerAutoProgressBar(A=2.0) - Fire & Forget Physics";
+                    let fillTime = 1.0; let holdTime = 0.2; let fadeTime = 0.5;
+                    function renderAutoPB() {
+                        let elapsed = (performance.now() - startTime) / 1000;
+                        leds.forEach((l, i) => {
+                            let ledPos = i / ledCount;
+                            if (elapsed < fillTime) {
+                                let progress = Math.pow(elapsed / fillTime, 2); // Accelerate
+                                if (ledPos < progress) setLedColor(l, 0, 240, 255, 1);
+                                else setLedColor(l, 0, 0, 0, 0);
+                            } else if (elapsed < fillTime + holdTime) {
+                                setLedColor(l, 0, 240, 255, 1); // Hold
+                            } else if (elapsed < fillTime + holdTime + fadeTime) {
+                                let fadeProgress = (elapsed - fillTime - holdTime) / fadeTime;
+                                if (ledPos < fadeProgress) setLedColor(l, 0, 0, 0, 0); // Erase
+                                else setLedColor(l, 0, 240, 255, 1);
+                            } else {
+                                setLedColor(l, 0, 0, 0, 0);
+                            }
+                        });
+                        if(elapsed < fillTime + holdTime + fadeTime + 0.1) animationFrameId = requestAnimationFrame(renderAutoPB);
+                        else statusText.innerText = "> Mode 7A: Animation complete. I2C Bus idle.";
+                    }
+                    renderAutoPB();
+                    break;
+
+                case 'pb-manual':
+                    manualUnits += 3.34; if(manualUnits > 10.5) manualUnits = 0;
+                    statusText.innerText = `> Mode 7B: addManualProgress() - Loaded Element. Units: ${manualUnits.toFixed(1)}/10`;
+                    let targetRatio = manualUnits / 10;
+                    leds.forEach((l, i) => {
+                        let ledPos = (i + 1) / ledCount;
+                        if (ledPos <= targetRatio) setLedColor(l, 0, 255, 0, 1);
+                        else setLedColor(l, 0, 0, 0, 0);
+                    });
+                    break;
             }
         }
 
+        // 物理蜂鸣器模拟
         function triggerBuzzer() {
-            const status = document.getElementById('status-text');
-            status.innerText = "> Executing: beep(2500Hz, 150ms)";
-            strip.style.transform = "scale(1.02)";
-            setTimeout(() => strip.style.transform = "scale(0.98)", 50);
-            setTimeout(() => strip.style.transform = "scale(1.01)", 100);
-            setTimeout(() => strip.style.transform = "scale(1)", 150);
+            statusText.innerText = "> Hardware: beep(2000Hz, 150ms) - Acoustic-optic sync triggered";
+            strip.style.transform = "scale(1.03)";
+            strip.style.borderColor = "var(--v3-green)";
+            setTimeout(() => { strip.style.transform = "scale(0.98)"; }, 50);
+            setTimeout(() => { strip.style.transform = "scale(1.01)"; }, 100);
+            setTimeout(() => { 
+                strip.style.transform = "scale(1)"; 
+                strip.style.borderColor = "#333";
+            }, 150);
         }
     </script>
 </body>
