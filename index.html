@@ -21,6 +21,8 @@
             /* V3 核心色彩 */
             --accent-cyan: #00f0ff;
             --accent-violet: #8a2be2;
+            --alert-orange: #ff5e00;
+            --alert-yellow: #facc15;
             --v3-green: #00ff66;
             --v3-glow: rgba(0, 255, 102, 0.15);
             
@@ -79,7 +81,8 @@
             position: sticky; top: 0; z-index: 100;
             border-bottom: 1px solid var(--border-subtle);
         }
-        .logo { height: 28px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+        .logo-text { font-weight: 800; font-size: 1.2rem; letter-spacing: 2px; }
+        .logo-text span { color: var(--v3-green); }
         .nav-links a {
             color: var(--text-muted); text-decoration: none; margin-left: 40px;
             font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px;
@@ -90,6 +93,8 @@
         /* --- 滚动揭示动画 --- */
         .reveal { opacity: 0; transform: translateY(30px); transition: var(--transition-smooth); }
         .reveal.active { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
 
         /* --- 主视觉区域 --- */
         .hero {
@@ -123,6 +128,7 @@
         }
         .subtitle span { color: #fff; font-weight: 500; }
 
+        .cta-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
         .btn {
             padding: 14px 32px; border-radius: 99px; font-weight: 600; font-size: 0.95rem;
             text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
@@ -133,9 +139,40 @@
             box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 10px 30px rgba(255,255,255,0.15);
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 15px 40px rgba(255,255,255,0.3); }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03); color: #fff;
+            border: 1px solid var(--border-subtle); backdrop-filter: blur(10px);
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--border-hover); transform: translateY(-2px); }
+
+        /* --- 警告横幅区 (I2C 阻塞警告) --- */
+        .notices-section {
+            max-width: 1000px; margin: 0 auto 80px auto; padding: 0 20px;
+            display: flex; flex-direction: column; gap: 20px; z-index: 10; position: relative;
+        }
+
+        .alert-card {
+            background: rgba(15, 15, 17, 0.6); backdrop-filter: blur(16px);
+            border-radius: 16px; padding: 24px; border: 1px solid var(--border-subtle);
+            border-left: 4px solid; display: flex; flex-direction: column; gap: 12px;
+        }
+        .alert-card.critical { 
+            border-left-color: var(--alert-orange);
+            background: linear-gradient(90deg, rgba(255, 94, 0, 0.05) 0%, rgba(15,15,17,0.6) 100%);
+        }
+        .alert-card.warning { 
+            border-left-color: var(--alert-yellow);
+            background: linear-gradient(90deg, rgba(250, 204, 21, 0.05) 0%, rgba(15,15,17,0.6) 100%);
+        }
+
+        .alert-title { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.05rem; }
+        .critical .alert-title { color: var(--alert-orange); }
+        .warning .alert-title { color: var(--alert-yellow); }
+        .alert-content p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.7; }
+        .alert-content strong { color: #fff; }
 
         /* --- 交互式 LED 演示区 --- */
-        .demo-section { padding: 60px 5%; position: relative; z-index: 10; text-align: center; max-width: 1400px; margin: 0 auto; }
+        .demo-section { padding: 40px 5% 80px 5%; position: relative; z-index: 10; text-align: center; max-width: 1400px; margin: 0 auto; }
         .section-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
         .section-subtitle { color: var(--text-muted); margin-bottom: 50px; font-size: 1rem; }
 
@@ -220,6 +257,45 @@
         .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; }
         .card-desc-zh { font-size: 0.85rem !important; color: #71717a !important; margin-bottom: 0 !important; border-top: 1px dashed var(--border-subtle); padding-top: 12px; margin-top: auto; }
 
+        /* --- 弹窗样式 (Modal) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(16px);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-container {
+            background: #09090b; width: 90%; max-width: 720px;
+            border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px; position: relative; transform: scale(0.95) translateY(20px); 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+            max-height: 90vh; display: flex; flex-direction: column;
+        }
+        .modal-overlay.active .modal-container { transform: scale(1) translateY(0); }
+        .modal-header h2 { font-size: 1.8rem; margin-bottom: 8px; color: #fff; letter-spacing: -0.5px; }
+        .modal-header p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
+        
+        .terms-box {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle);
+            border-radius: 16px; flex-grow: 1; overflow-y: auto; padding: 24px;
+            font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px;
+        }
+        .terms-box h4 { color: #fff; margin: 20px 0 8px 0; font-size: 1rem; }
+        .terms-box h4:first-child { margin-top: 0; }
+        .terms-box pre { background: rgba(0,0,0,0.5); padding: 16px; border-radius: 8px; white-space: pre-wrap; font-family: 'JetBrains Mono'; font-size: 0.8rem; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05); color: #888; }
+        .terms-box::-webkit-scrollbar { width: 6px; }
+        .terms-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        
+        .agreement-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 0.95rem; color: #fff; margin-bottom: 30px; user-select: none; }
+        .agreement-label input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--v3-green); }
+        
+        .modal-footer { display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid var(--border-subtle); padding-top: 24px; }
+        .dl-btn { background: #3f3f46; color: #a1a1aa; pointer-events: none; opacity: 0.5; text-decoration: none; padding: 12px 24px; border-radius: 99px; font-weight: 600; font-size: 0.9rem; transition: var(--transition-smooth); display: inline-flex; align-items: center; gap: 8px;}
+        .dl-btn.ready.primary { background: #fff; color: #000; pointer-events: auto; opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .dl-btn.ready.secondary { background: rgba(255,255,255,0.1); color: #fff; pointer-events: auto; opacity: 1; border: 1px solid var(--border-subtle); }
+
         footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-subtle); background: rgba(0,0,0,0.8); }
         footer strong { color: #fff; }
     </style>
@@ -233,7 +309,7 @@
     </div>
 
     <nav>
-        <div style="font-weight: 800; font-size: 1.2rem; letter-spacing: 2px;">KIRIN <span style="color: var(--v3-green);">V3</span></div>
+        <div class="logo-text">KIRIN <span>V3</span></div>
         <div class="nav-links">
             <a href="#demo">Simulator</a>
             <a href="#features">Full Specs</a>
@@ -248,7 +324,37 @@
             The ultimate acoustic-optic feedback module for FTC. <br>
             <span>Featuring Sub-pixel Anti-aliasing, Non-linear Math curves, and Autonomous Physics Engines.</span>
         </div>
-        <a href="#demo" class="btn btn-primary">Launch Simulator</a>
+        <div class="cta-group">
+            <button class="btn btn-primary" onclick="openDownloadModal()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Download Driver
+            </button>
+            <a href="#demo" class="btn btn-secondary">Launch Simulator</a>
+        </div>
+    </section>
+
+    <section class="notices-section">
+        <div class="alert-card critical reveal delay-1">
+            <div class="alert-title">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                CRITICAL: I2C Bandwidth Blocking Warning / I2C总线阻塞警告
+            </div>
+            <div class="alert-content">
+                <p><strong>EN:</strong> Due to the limited I2C bandwidth of the Control Hub, continuous calls to the module within active loops (e.g., inside `while(opModeIsActive())`) will saturate the bus. This causes IMU and sensor data retrieval to lag, leading to <strong>loss of robot control or odometry drift</strong>. Send light commands ONLY when the robot's state changes.</p>
+                <p><strong>ZH:</strong> 由于 Control Hub 带宽受限，在主循环中不加节制地高频调用灯光指令，会导致 I2C 总线彻底拥堵，致使 IMU 及其他传感器数据掉线，直接引发<strong>底盘失控或自动阶段坐标偏移</strong>。请务必使用状态机，仅在“状态发生切换时”发送一次灯光指令。</p>
+            </div>
+        </div>
+
+        <div class="alert-card warning reveal delay-2">
+            <div class="alert-title">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Compliance Notice / 比赛合规提示
+            </div>
+            <div class="alert-content">
+                <p><strong>EN:</strong> Ensure your light patterns comply with the FTC Game Manual to avoid fouls (e.g., extremely bright strobes that distract drivers).</p>
+                <p><strong>ZH:</strong> 赛场上请确保您的光效符合当前赛季的 FTC 手册规定（避免使用过亮或可能干扰对手视觉的爆闪），以免引发意外犯规。</p>
+            </div>
+        </div>
     </section>
 
     <section id="demo" class="demo-section reveal">
@@ -382,8 +488,45 @@
 
     <footer>
         <p>MANUFACTURED BY <strong>FTC TEAM 27570</strong> &nbsp;|&nbsp; PUBLISHED BY <strong>BYNX</strong></p>
-        <p style="margin-top: 10px; opacity: 0.4;">Copyright &copy; 2024-2025 KIRIN PROJECT. All Rights Reserved.</p>
+        <p style="margin-top: 10px; opacity: 0.4;">Copyright &copy; 2024-2026 KIRIN PROJECT. All Rights Reserved.</p>
     </footer>
+
+    <div class="modal-overlay" id="downloadModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Terms & Conditions</h2>
+                <p>下载 KIRIN V3 驱动程序前，请仔细阅读以下协议与免责声明</p>
+            </div>
+            <div class="terms-box">
+                <h4>1. MIT License (开源许可)</h4>
+                <p>Copyright (c) 2024-2026 BYNX KIRIN Project</p>
+                <pre>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software...</pre>
+                
+                <h4>2. I2C Bandwidth Blocking (核心风险声明)</h4>
+                <p><strong>EN:</strong> You acknowledge that blindly calling LED methods inside a `while` loop will crash the I2C bus and disconnect your sensors. You must implement a state-machine architecture to only send commands when the LED state needs to change.</p>
+                <p><strong>ZH:</strong> 您确认已知晓 I2C 阻塞风险。禁止在主循环中无脑高频刷灯，您必须在代码中维护一个状态机，确保只有在“状态变化”时才向模块发送指令，否则因传感器断连导致的失控概不负责。</p>
+                
+                <h4>3. FTC Compliance</h4>
+                <p><strong>EN:</strong> Users are responsible for ensuring their light patterns comply with the official FTC Game Manual.</p>
+            </div>
+            
+            <label class="agreement-label">
+                <input type="checkbox" id="agreeCheckbox">
+                <span>我已阅读并完全知晓 I2C 阻塞的严重风险，同意仅在状态切换时发送指令，并同意开源协议。</span>
+            </label>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" style="padding: 12px 24px; border-radius: 99px; font-weight: 600; font-size: 0.9rem;" onclick="closeDownloadModal()">Cancel</button>
+                <a id="dl-driver" href="STM32LedModule.java" download class="dl-btn primary">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Driver .java
+                </a>
+                <a id="dl-opmode" href="STM32LedShowcase.java" download class="dl-btn secondary">
+                    OpMode .java
+                </a>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 1. 滚动揭示动画
@@ -398,7 +541,36 @@
         }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
         revealElements.forEach(el => revealObserver.observe(el));
 
-        // 2. 模拟器核心逻辑
+        // 2. 弹窗与下载逻辑
+        const modal = document.getElementById('downloadModal');
+        const checkbox = document.getElementById('agreeCheckbox');
+        const dlDriver = document.getElementById('dl-driver');
+        const dlOpmode = document.getElementById('dl-opmode');
+
+        function openDownloadModal() { 
+            modal.classList.add('active'); 
+            document.body.style.overflow = 'hidden'; 
+        }
+        function closeDownloadModal() { 
+            modal.classList.remove('active'); 
+            document.body.style.overflow = 'auto'; 
+        }
+        
+        checkbox.addEventListener('change', function() {
+            if(this.checked) {
+                dlDriver.classList.add('ready');
+                dlOpmode.classList.add('ready');
+            } else {
+                dlDriver.classList.remove('ready');
+                dlOpmode.classList.remove('ready');
+            }
+        });
+        
+        modal.addEventListener('click', e => { 
+            if (e.target === modal) closeDownloadModal(); 
+        });
+
+        // 3. 模拟器核心逻辑
         const strip = document.getElementById('ledStrip');
         const statusText = document.getElementById('status-text');
         const ledCount = 16;
@@ -412,7 +584,6 @@
             strip.appendChild(led);
         }
 
-        // 工具函数：清理状态
         function clearEffects() {
             if(animationFrameId) cancelAnimationFrame(animationFrameId);
             document.querySelectorAll('.led').forEach(l => {
@@ -421,7 +592,6 @@
             document.querySelectorAll('.ctrl-btn').forEach(btn => btn.classList.remove('active-btn'));
         }
 
-        // 工具函数：设置单颗LED颜色与亮度
         function setLedColor(el, r, g, b, brightnessMultiplier = 1) {
             let actualR = Math.floor(r * brightnessMultiplier);
             let actualG = Math.floor(g * brightnessMultiplier);
@@ -592,7 +762,6 @@
             }
         }
 
-        // 物理蜂鸣器模拟
         function triggerBuzzer() {
             statusText.innerText = "> Hardware: beep(2000Hz, 150ms) - Acoustic-optic sync triggered";
             strip.style.transform = "scale(1.03)";
