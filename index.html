@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIRIN | STM32 LED Driver V2</title>
+    <title>KIRIN | STM32 LED Driver V3</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
     <style>
         /* --- 极致现代科技风 核心变量 --- */
         :root {
-            --bg-base: #000000; /* 更纯粹的黑 */
+            --bg-base: #000000;
             --bg-surface: rgba(255, 255, 255, 0.02);
             --border-subtle: rgba(255, 255, 255, 0.06);
             --border-hover: rgba(255, 255, 255, 0.15);
@@ -130,9 +130,10 @@
         }
 
         .subtitle {
-            font-size: 1.15rem; color: var(--text-muted); max-width: 600px;
+            font-size: 1.15rem; color: var(--text-muted); max-width: 700px;
             margin-bottom: 50px; line-height: 1.7; font-weight: 400;
         }
+        .subtitle strong { color: var(--accent-cyan); font-weight: 600; }
 
         /* --- 极客风按钮 --- */
         .cta-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
@@ -144,7 +145,6 @@
             transition: var(--transition-smooth);
         }
 
-        /* 主按钮流光效果 */
         .btn-primary {
             background: #fff; color: #000;
             box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 10px 30px rgba(255,255,255,0.15);
@@ -181,7 +181,6 @@
             border-left: 4px solid; display: flex; flex-direction: column; gap: 12px;
             transition: var(--transition-smooth); position: relative; overflow: hidden;
         }
-        /* 卡片内部的环境光折射 */
         .alert-card::after {
             content: ''; position: absolute; top: 0; right: 0; width: 300px; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02)); pointer-events: none;
@@ -203,14 +202,14 @@
         .alert-content p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.7; }
         .alert-content strong { color: #fff; }
 
-        /* --- 交互式 LED 演示区 (更硬核的PCB质感) --- */
+        /* --- 交互式 LED 演示区 --- */
         .demo-section { padding: 80px 5%; position: relative; z-index: 10; text-align: center; }
         .section-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px; }
         .section-subtitle { color: var(--text-muted); margin-bottom: 60px; font-size: 1.05rem; }
 
         .led-strip-container {
             width: 100%; max-width: 850px; height: 64px;
-            background: #09090b; /* 纯黑底板 */
+            background: #09090b; 
             background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .03) 25%, rgba(255, 255, 255, .03) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .03) 75%, rgba(255, 255, 255, .03) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .03) 25%, rgba(255, 255, 255, .03) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .03) 75%, rgba(255, 255, 255, .03) 76%, transparent 77%, transparent);
             background-size: 20px 20px;
             margin: 0 auto 50px auto; border-radius: 8px;
@@ -219,19 +218,16 @@
             display: flex; align-items: center; justify-content: space-evenly;
             padding: 0 20px; position: relative;
         }
-        /* 模拟 PCB 上的安装孔 */
         .led-strip-container::before, .led-strip-container::after {
             content: ''; width: 12px; height: 12px; background: #000;
             border-radius: 50%; border: 2px solid #3f3f46; box-shadow: inset 0 2px 4px rgba(0,0,0,1);
         }
 
-        /* SMD 5050 拟真灯珠 */
         .led {
             width: 18px; height: 18px; background-color: #111;
             border-radius: 4px; border: 1px solid #222; position: relative;
             transition: background-color 0.1s, box-shadow 0.1s;
         }
-        /* 灯珠中心的发光核心 */
         .led::after {
             content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 8px; height: 8px; background: rgba(255,255,255,0.1);
@@ -259,7 +255,7 @@
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
-        /* --- 特性卡片 Grid (3D 悬浮感) --- */
+        /* --- 特性卡片 Grid (V3 新特性) --- */
         .features {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px; max-width: 1200px; margin: 0 auto; padding: 50px 5% 100px 5%;
@@ -271,13 +267,11 @@
             backdrop-filter: blur(20px); transition: var(--transition-smooth);
             position: relative; overflow: hidden;
         }
-        /* 卡片顶部的高光线 */
         .card::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             opacity: 0.3; transition: opacity 0.3s;
         }
-        /* 悬浮光晕 */
         .card::after {
             content: ''; position: absolute; inset: 0;
             background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06), transparent 40%);
@@ -303,14 +297,13 @@
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.05);
         }
 
-        /* --- 代码展示区 (Apple MacOS 视窗质感) --- */
+        /* --- 代码展示区 --- */
         .code-showcase {
-            max-width: 850px; margin: 0 auto 120px auto; background: #09090b;
+            max-width: 950px; margin: 0 auto 120px auto; background: #09090b;
             border-radius: 20px; border: 1px solid var(--border-subtle);
             box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
             overflow: hidden; position: relative; z-index: 10;
         }
-        /* 代码块背后的泛光 */
         .code-showcase::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(from 180deg at 50% 50%, transparent 0deg, var(--accent-violet) 180deg, transparent 360deg);
@@ -332,10 +325,11 @@
             padding: 40px; overflow-x: auto; color: #e4e4e7; background: rgba(0,0,0,0.6);
             font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.8; margin: 0;
         }
-        .k-keyword { color: #ff7b72; } /* GitHub Dark 语法高亮色系 */
+        .k-keyword { color: #ff7b72; } 
         .k-function { color: #d2a8ff; } 
         .k-type { color: #79c0ff; } 
         .k-string { color: #a5d6ff; } 
+        .k-enum { color: #79c0ff; font-style: italic; }
         .k-comment { color: #8b949e; font-style: italic; }
 
         footer {
@@ -345,7 +339,7 @@
         }
         footer strong { color: #fff; font-weight: 600; }
 
-        /* --- 弹窗样式优化 (Modal) --- */
+        /* --- 弹窗样式 --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(16px);
@@ -362,7 +356,6 @@
             display: flex; flex-direction: column; max-height: 90vh;
         }
         .modal-overlay.active .modal-container { transform: scale(1) translateY(0); }
-        /* 弹窗内部样式保持原样，略调颜色 */
         .modal-header h2 { font-size: 1.8rem; margin-bottom: 8px; color: #fff; letter-spacing: -0.5px; }
         .modal-header p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
         .terms-box {
@@ -410,20 +403,20 @@
 
     <section class="hero reveal">
         <div class="version-badge">
-            <span class="dot"></span> Driver v2.0 Available
+            <span class="dot"></span> Driver v3.0 Available
         </div>
-        <h1>STM32 I2C LED<br>Controller</h1>
+        <h1>STM32 Rendering<br>Engine V3</h1>
         <div class="subtitle">
-            A high-performance acoustic-optic feedback module engineered for FTC robots. <br>
-            专为 FTC 机器人设计的声光反馈模块。
+            A revolutionary hardware-accelerated acoustic-optic feedback module engineered for FTC. <br>
+            <strong>Zero CPU Overhead. Fully Enums Supported. Varargs Ready.</strong>
         </div>
         <div class="cta-group">
             <button class="btn btn-primary" onclick="openDownloadModal()">
-                Download Driver
+                Download V3 Driver
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             </button>
-            <a href="LedDemoOpMode.java" download class="btn btn-secondary">
-                View OpMode Demo
+            <a href="STM32LedShowcase.java" download class="btn btn-secondary">
+                View OpMode Showcase
             </a>
         </div>
     </section>
@@ -432,73 +425,61 @@
         <div class="alert-card critical reveal delay-1">
             <div class="alert-title">
                 <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                Bandwidth & Performance Warning / 性能与带宽警告
+                Zero Overhead Principle / 零开销原则
             </div>
             <div class="alert-content">
-                <p><strong>EN:</strong> Due to the limited I2C bandwidth of the Control Hub, sending commands to KIRIN may temporarily cause other I2C devices to become unresponsive. Please <strong>do not adjust lights frequently within active loops</strong>.</p>
-                <p><strong>ZH:</strong> 由于 Control Hub 带宽有限，频繁发送指令会导致其他 I2C 设备（如 IMU）掉线。<strong>请绝对避免在 while 循环中不加限制地连续写入灯光指令</strong>。</p>
-            </div>
-        </div>
-
-        <div class="alert-card warning reveal delay-2">
-            <div class="alert-title">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Compliance Notice / 比赛合规提示
-            </div>
-            <div class="alert-content">
-                <p><strong>EN:</strong> Ensure your light patterns comply with the FTC Game Manual to avoid fouls.</p>
-                <p><strong>ZH:</strong> 赛场上请确保您的光效（亮度、频闪率）符合当前赛季的 FTC 手册规定，以免引发意外犯规。</p>
+                <p><strong>EN:</strong> V3 firmware handles all animations (Breath, Waves, Fading) autonomously via STM32 DMA. <strong>Send the command ONCE</strong> and let the module render it. Do NOT spam I2C commands in loops.</p>
+                <p><strong>ZH:</strong> V3 固件由单片机 DMA 全权接管亚像素级动画渲染。只需<strong>触发一次指令</strong>，即可实现渐变与流水。严禁在循环中频繁发送指令干扰定位算法。</p>
             </div>
         </div>
     </section>
 
     <section id="demo" class="demo-section reveal">
-        <h2 class="section-title">Live Hardware Simulation</h2>
-        <p class="section-subtitle">Click buttons to test the TeleOp mapping logic directly in your browser.</p>
+        <h2 class="section-title">V3 Engine Simulation</h2>
+        <p class="section-subtitle">Experience the sub-pixel smoothing and smart progress bar directly in your browser.</p>
         
         <div class="led-strip-container" id="ledStrip">
             </div>
 
         <div class="control-panel">
-            <button class="ctrl-btn" onclick="setMode('solid-red')">pad1.A [Solid Red]</button>
-            <button class="ctrl-btn" onclick="setMode('solid-cyan')">pad1.B[Solid Cyan]</button>
-            <button class="ctrl-btn" onclick="setMode('wave')">pad1.X [Wave Mode]</button>
-            <button class="ctrl-btn" onclick="setMode('strobe')">pad1.Y [Strobe Mode]</button>
-            <button class="ctrl-btn" onclick="setMode('single')">dpad_up [Single LED]</button>
-            <button class="ctrl-btn" onclick="setMode('off')">dpad_down [Turn OFF]</button>
-            <button class="ctrl-btn" onclick="triggerBuzzer()">LB/RB [Trigger Beep]</button>
+            <button class="ctrl-btn" onclick="setMode('breath')">[ENTB] Cyber Breath</button>
+            <button class="ctrl-btn" onclick="setMode('stripe')">[ENTW2] Smooth Stripe</button>
+            <button class="ctrl-btn" onclick="setMode('progressbar')">[ENTPB] Laser Charge</button>
+            <button class="ctrl-btn" onclick="setMode('strobe')">[ENTST] Police Strobe</button>
+            <button class="ctrl-btn" onclick="setMode('off')">[ENF] Turn OFF</button>
+            <button class="ctrl-btn" onclick="triggerBuzzer()">[BENT] Buzzer</button>
         </div>
-        <div id="status-text">&gt; System initialized. Awaiting I2C commands...</div>
+        <div id="status-text">&gt; System initialized. Awaiting V3 Engine commands...</div>
     </section>
 
     <section id="features" class="features">
         <div class="card reveal">
             <div class="card-icon">🌊</div>
-            <h3>Dual-Color Wave</h3>
-            <p>Creates a smooth breathing animation between two colors.</p>
-            <p class="card-desc-zh">支持双色混合呼吸流水，速度可调。</p>
-            <span class="code-tag">ENTW</span>
+            <h3>Sub-pixel Anti-Aliased Wave</h3>
+            <p>Support up to 10 colors with customizable width and gaps. Hardware calculated sub-pixel cross-fading.</p>
+            <p class="card-desc-zh">支持最高10种颜色的无缝抗锯齿流动，彻底消除像素顿挫感。</p>
+            <span class="code-tag">ENTW2</span>
         </div>
         <div class="card reveal delay-1">
-            <div class="card-icon">🚨</div>
-            <h3>Police Strobe</h3>
-            <p>High-frequency alternating flash pattern for alerts.</p>
-            <p class="card-desc-zh">警灯爆闪模式，分组交替闪烁。</p>
-            <span class="code-tag">ENTST</span>
+            <div class="card-icon">🫁</div>
+            <h3>Non-linear Breath Engine</h3>
+            <p>Smooth multi-color breathing with custom easing coefficient (A-value) for organic pulsing.</p>
+            <p class="card-desc-zh">非线性多色呼吸算法，支持指数级缓动调节，像生命一样呼吸。</p>
+            <span class="code-tag">ENTB</span>
         </div>
         <div class="card reveal delay-2">
-            <div class="card-icon">🔊</div>
-            <h3>Integrated Buzzer</h3>
-            <p>Simultaneous sound feedback via I2C commands.</p>
-            <p class="card-desc-zh">板载蜂鸣器，支持自定义频率和时长。</p>
-            <span class="code-tag">BENT</span>
+            <div class="card-icon">🔋</div>
+            <h3>Smart Progress Bar</h3>
+            <p>One-shot trigger for charging animations. Includes auto-fill, hold, and directional erase phases.</p>
+            <p class="card-desc-zh">一键触发全自动蓄力进度条，支持同向擦除与手动逐格累加。</p>
+            <span class="code-tag">ENTPB</span>
         </div>
         <div class="card reveal">
-            <div class="card-icon">🆔</div>
-            <h3>Smart ID Assign</h3>
-            <p>Auto-standby after ID assignment (Orange flash on boot).</p>
-            <p class="card-desc-zh">上电橙色闪烁，分配ID后自动进入待机。</p>
-            <span class="code-tag">0x60</span>
+            <div class="card-icon">☕</div>
+            <h3>Java Enums & Varargs</h3>
+            <p>The V3 driver provides fully typed enums for directions/fades and elegant varargs for colors.</p>
+            <p class="card-desc-zh">Java 端深度重构，支持枚举传参和可变长颜色参数，告别语法错误。</p>
+            <span class="code-tag">Driver</span>
         </div>
     </section>
 
@@ -507,17 +488,21 @@
             <div class="window-controls">
                 <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
             </div>
-            <div class="file-name">LedModuleDriver.java</div>
+            <div class="file-name">STM32LedModule.java</div>
         </div>
         <pre>
-<span class="k-keyword">public void</span> <span class="k-function">setWaveMode</span>(<span class="k-type">char</span> id, <span class="k-type">int</span> color1, <span class="k-type">int</span> color2, <span class="k-type">int</span> speed) {
-    <span class="k-comment">// Seamless I2C Command Generation</span>
-    <span class="k-type">String</span> cmd = String.<span class="k-function">format</span>(Locale.US, 
-        <span class="k-string">"%c ENTW %s %s %d%% %d"</span>,
-        id, <span class="k-function">colorToHex</span>(color1), <span class="k-function">colorToHex</span>(color2), speed, brightness
-    );
-    <span class="k-function">sendCommand</span>(cmd);
-}</pre>
+<span class="k-comment">// 1. V3 Breath Engine: Global breath across 3 colors with easing=1.5</span>
+led.<span class="k-function">setBreathMode</span>(<span class="k-keyword">true</span>, 100, 1.5, 100, Color.<span class="k-enum">RED</span>, Color.<span class="k-enum">ORANGE</span>, Color.<span class="k-enum">YELLOW</span>);
+
+<span class="k-comment">// 2. V3 Anti-Aliased Stripe: Seamless blend moving Right</span>
+<span class="k-comment">// Width: 3.0, Gap: 1.0, Anti-Alias: true, Easing: 2.0</span>
+led.<span class="k-function">setAdvancedStripeWave</span>(3.0, 1.0, Direction.<span class="k-enum">RIGHT</span>, <span class="k-keyword">true</span>, 2.0, 80, 100, 
+    Color.<span class="k-enum">RED</span>, Color.<span class="k-enum">YELLOW</span>, Color.<span class="k-enum">GREEN</span>);
+
+<span class="k-comment">// 3. V3 Auto Progress Bar: Laser Blast</span>
+<span class="k-comment">// Fill over 1.0s (Accel=2.0) -> Hold 0.2s -> Erase Right (FB) over 0.5s</span>
+led.<span class="k-function">triggerAutoProgressBar</span>(Color.<span class="k-enum">CYAN</span>, Color.<span class="k-enum">BLACK</span>, 
+    1.0, 2.0, FadeType.<span class="k-enum">DIRECTIONAL_ERASE</span>, 0.2, 0.5, Direction.<span class="k-enum">RIGHT</span>, 100);</pre>
     </section>
 
     <footer>
@@ -525,11 +510,12 @@
         <p style="margin-top: 10px; opacity: 0.4;">Copyright &copy; 2026 KIRIN PROJECT. All Rights Reserved.</p>
     </footer>
 
+    <!-- 弹窗 -->
     <div class="modal-overlay" id="downloadModal">
         <div class="modal-container">
             <div class="modal-header">
                 <h2>Terms and Conditions</h2>
-                <p>下载 KIRIN 驱动程序前，请仔细阅读以下协议与免责声明</p>
+                <p>下载 KIRIN V3 驱动程序前，请仔细阅读以下协议与免责声明</p>
             </div>
             
             <div class="terms-box">
@@ -537,8 +523,8 @@
                 <p>Copyright (c) 2026 BYNX KIRIN Project</p>
                 <pre>Permission is hereby granted, free of charge... (Standard MIT terms apply)</pre>
                 
-                <h4>2. I2C Bandwidth Limitation</h4>
-                <p><strong>EN:</strong> Do not adjust lights frequently within active loops to prevent I2C bus congestion.</p>
+                <h4>2. Zero Overhead Usage</h4>
+                <p><strong>EN:</strong> The V3 driver utilizes hardware rendering. Do NOT invoke rendering commands (ENTW2, ENTPB, ENTB) continuously inside a loop. Doing so will crash the I2C bus and disconnect your IMU/Odometry.</p>
                 
                 <h4>3. FTC Compliance</h4>
                 <p><strong>EN:</strong> Users are responsible for ensuring light patterns comply with official rules.</p>
@@ -546,30 +532,31 @@
 
             <label class="agreement-label">
                 <input type="checkbox" id="agreeCheckbox">
-                <span>我已阅读并完全知晓 I2C 带宽风险与合规性要求，同意上述许可协议。</span>
+                <span>我已完全知晓 V3 引擎的「事件驱动」原则，绝不在循环中高频刷新灯光。</span>
             </label>
 
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeDownloadModal()">Cancel</button>
-                <a id="final-download-btn" href="LedModuleDriver.java" download class="btn btn-primary">Confirm & Download</a>
+                <!-- 更新了下载链接为 STM32LedModule.java -->
+                <a id="final-download-btn" href="STM32LedModule.java" download class="btn btn-primary">Confirm & Download</a>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. 滚动揭示动画 (Intersection Observer) ---
+        // --- 1. 滚动揭示动画 ---
         const revealElements = document.querySelectorAll('.reveal');
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    revealObserver.unobserve(entry.target); // 触发一次后取消监听
+                    revealObserver.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
         revealElements.forEach(el => revealObserver.observe(el));
 
-        // --- 2. 卡片 3D 悬浮光效跟随鼠标 ---
+        // --- 2. 卡片 3D 悬浮光效跟随 ---
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('mousemove', e => {
                 const rect = card.getBoundingClientRect();
@@ -580,7 +567,7 @@
             });
         });
 
-        // --- 弹窗逻辑 ---
+        // --- 3. 弹窗逻辑 ---
         const modal = document.getElementById('downloadModal');
         const checkbox = document.getElementById('agreeCheckbox');
         const downloadBtn = document.getElementById('final-download-btn');
@@ -592,10 +579,11 @@
         });
         modal.addEventListener('click', e => { if (e.target === modal) closeDownloadModal(); });
 
-        // --- LED 模拟逻辑 ---
+        // --- 4. LED 模拟逻辑 (适配 V3 特性) ---
         const strip = document.getElementById('ledStrip');
         const ledCount = 16;
         let animationInterval = null;
+        let animationTimeout = null;
 
         for(let i=0; i<ledCount; i++) {
             let led = document.createElement('div');
@@ -605,62 +593,134 @@
 
         function clearEffects() {
             if(animationInterval) clearInterval(animationInterval);
+            if(animationTimeout) clearTimeout(animationTimeout);
             document.querySelectorAll('.led').forEach(l => {
                 l.style.backgroundColor = '#111'; l.style.boxShadow = 'none'; l.classList.remove('active');
             });
         }
 
-        function setLedColor(el, color, blur = 20) {
+        function setLedColor(el, r, g, b, brightness = 1.0) {
+            let br = Math.max(0, Math.min(1, brightness));
+            let color = `rgb(${r*br}, ${g*br}, ${b*br})`;
+            let blur = br * 20 + 5;
             el.style.backgroundColor = color;
-            el.style.boxShadow = `0 0 ${blur}px ${color}, inset 0 0 5px rgba(255,255,255,0.5)`;
-            el.classList.add('active');
+            el.style.boxShadow = `0 0 ${blur}px ${color}, inset 0 0 5px rgba(255,255,255,${br*0.5})`;
+            if (br > 0.1) el.classList.add('active'); else el.classList.remove('active');
         }
 
         function setMode(mode) {
             clearEffects();
             const status = document.getElementById('status-text');
 
-            if (mode === 'solid-red') {
-                status.innerText = "> Executing: setSolidColor(0xFF0044)";
-                document.querySelectorAll('.led').forEach(l => setLedColor(l, '#ff0044'));
-            } else if (mode === 'solid-cyan') {
-                status.innerText = "> Executing: setSolidColor(0x00F0FF)";
-                document.querySelectorAll('.led').forEach(l => setLedColor(l, '#00f0ff'));
-            } else if (mode === 'off') {
+            if (mode === 'off') {
                 status.innerText = "> Executing: turnOff() - Standby Mode";
-            } else if (mode === 'single') {
-                status.innerText = "> Executing: setPixel(0, 0xFFFFFF)";
-                setLedColor(document.getElementById('led-0'), '#ffffff');
-            } else if (mode === 'wave') {
-                status.innerText = "> Executing: setWaveMode(Violet, Cyan, 50)";
-                let offset = 0;
-                animationInterval = setInterval(() => {
-                    offset++;
-                    document.querySelectorAll('.led').forEach((l, index) => {
-                        let val = Math.sin((index + offset) * 0.4) * 0.5 + 0.5; 
-                        let r = Math.floor(138 + (0 - 138) * val);
-                        let g = Math.floor(43 + (240 - 43) * val);
-                        let b = Math.floor(226 + (255 - 226) * val);
-                        setLedColor(l, `rgb(${r}, ${g}, ${b})`, val * 25 + 5);
-                    });
-                }, 50);
-            } else if (mode === 'strobe') {
+            } 
+            else if (mode === 'strobe') {
                 status.innerText = "> Executing: setStrobeMode(Red, Blue, Fast)";
                 let toggle = false;
                 animationInterval = setInterval(() => {
                     toggle = !toggle;
                     document.querySelectorAll('.led').forEach((l, index) => {
                         let isRedZone = index < ledCount / 2;
-                        if ((isRedZone && toggle) || (!isRedZone && !toggle)) setLedColor(l, '#ff0044', 25);
-                        else setLedColor(l, '#0066ff', 25);
+                        if ((isRedZone && toggle) || (!isRedZone && !toggle)) setLedColor(l, 255, 0, 68, 1);
+                        else setLedColor(l, 0, 102, 255, 1);
                     });
                 }, 80);
+            }
+            else if (mode === 'breath') {
+                // 模拟 ENTB: 非线性多色呼吸 (紫 -> 青)
+                status.innerText = "> Executing: setBreathMode(true, 150, 2.0, 100, PURPLE, CYAN)";
+                let tick = 0;
+                animationInterval = setInterval(() => {
+                    tick += 0.05;
+                    // 模拟 A=2.0 的缓动曲线
+                    let rawPulse = (Math.sin(tick) + 1) / 2;
+                    let pulse = Math.pow(rawPulse, 2.0); 
+                    
+                    // 颜色交叉渐变
+                    let r = 138 * (1-pulse) + 0 * pulse;
+                    let g = 43 * (1-pulse)  + 240 * pulse;
+                    let b = 226 * (1-pulse) + 255 * pulse;
+                    
+                    document.querySelectorAll('.led').forEach(l => {
+                        setLedColor(l, r, g, b, pulse * 0.8 + 0.2);
+                    });
+                }, 30);
+            }
+            else if (mode === 'stripe') {
+                // 模拟 ENTW2: 亚像素抗锯齿流水 (Traffic Light)
+                status.innerText = "> Executing: setAdvancedStripeWave(3.0, 1.0, RIGHT, true, 2.0, ...)";
+                let offset = 0;
+                const colors = [[255,0,0], [255,255,0], [0,255,0]];
+                
+                animationInterval = setInterval(() => {
+                    offset += 0.2;
+                    document.querySelectorAll('.led').forEach((l, index) => {
+                        // 模拟亚像素正弦波融合算法
+                        let pos = (index - offset + ledCount) % ledCount;
+                        let section = (pos / ledCount) * colors.length;
+                        let idx1 = Math.floor(section);
+                        let idx2 = (idx1 + 1) % colors.length;
+                        let blend = section - idx1;
+                        
+                        // 模拟 A=2.0 缓动交叉
+                        blend = (Math.sin(blend * Math.PI - Math.PI/2) + 1) / 2;
+                        
+                        let r = colors[idx1][0]*(1-blend) + colors[idx2][0]*blend;
+                        let g = colors[idx1][1]*(1-blend) + colors[idx2][1]*blend;
+                        let b = colors[idx1][2]*(1-blend) + colors[idx2][2]*blend;
+                        
+                        // 模拟间隙变暗
+                        let brightness = Math.pow(Math.sin(section * Math.PI), 1.5);
+                        
+                        setLedColor(l, r, g, b, brightness);
+                    });
+                }, 30);
+            }
+            else if (mode === 'progressbar') {
+                // 模拟 ENTPB: 蓄力、保持、擦除
+                status.innerText = "> Executing: triggerAutoProgressBar(CYAN, BLACK, 1.0, 2.0, FB, ...)";
+                
+                let fillPhase = 0; // 0: fill, 1: hold, 2: erase
+                let progress = 0;
+                let lastTime = Date.now();
+                
+                animationInterval = setInterval(() => {
+                    let now = Date.now();
+                    let dt = (now - lastTime) / 1000.0;
+                    lastTime = now;
+
+                    if (fillPhase === 0) {
+                        progress += dt / 1.0; // 1秒充满
+                        if (progress >= 1.0) { progress = 1.0; fillPhase = 1; setTimeout(() => fillPhase = 2, 200); }
+                    } else if (fillPhase === 2) {
+                        progress += dt / 0.5; // 0.5秒擦除
+                        if (progress >= 2.0) { progress = 2.0; clearInterval(animationInterval); }
+                    }
+
+                    document.querySelectorAll('.led').forEach((l, index) => {
+                        let ledPos = index / (ledCount - 1);
+                        let br = 0;
+                        
+                        if (fillPhase === 0 || fillPhase === 1) {
+                            // 模拟 A=2.0 蓄力加速
+                            let accelProg = Math.pow(progress, 2.0);
+                            br = ledPos <= accelProg ? 1.0 : 0;
+                        } else if (fillPhase === 2) {
+                            // 同向擦除
+                            let eraseProg = (progress - 1.0);
+                            br = ledPos > eraseProg ? 1.0 : 0;
+                        }
+                        
+                        setLedColor(l, 0, 240, 255, br);
+                    });
+                }, 30);
             }
         }
 
         function triggerBuzzer() {
             const status = document.getElementById('status-text');
-            status.innerText = "> Executing: playBeep(1000Hz, 150ms)";
+            status.innerText = "> Executing: playBeep(2700Hz, 150ms)";
             strip.style.transform = "scale(1.02)";
             setTimeout(() => strip.style.transform = "scale(0.98)", 50);
             setTimeout(() => strip.style.transform = "scale(1.01)", 100);
